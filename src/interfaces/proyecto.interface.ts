@@ -3,6 +3,7 @@ import { Tarea } from "./tarea.interface";
 import { Cambio } from "./cambio.interface";
 import { Recurso } from "./recurso.interface";
 import { Foro } from "./foro.interface";
+import { Reunion } from "./reunion.interface";
 
 export interface Proyecto {
     nombre: string,
@@ -14,5 +15,6 @@ export interface Proyecto {
     tareas: Tarea[],
     cambios: Cambio[],
     recursos: Recurso[],
-    foro: Foro
+    foro: Foro,
+    reuniones: Reunion[]
 }
