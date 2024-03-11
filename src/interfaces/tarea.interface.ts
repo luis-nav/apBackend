@@ -2,7 +2,7 @@ import { ObjectId } from "mongoose";
 
 export interface Tarea {
     nombre: string,
-    storyPoint: number,
+    storyPoints: number,
     responsable: ObjectId,
     estado: ObjectId
 }

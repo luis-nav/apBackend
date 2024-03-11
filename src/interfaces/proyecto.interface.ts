@@ -8,13 +8,13 @@ import { Reunion } from "./reunion.interface";
 export interface Proyecto {
     nombre: string,
     presupuesto: number,
-    estado: string,
+    estado: ObjectId,
     descripcion: string,
     fechaInicio: Date,
     responsable: ObjectId,
     tareas: Tarea[],
     cambios: Cambio[],
     recursos: Recurso[],
-    foro: Foro,
-    reuniones: Reunion[]
+    foro: ObjectId,
+    reuniones: ObjectId[]
 }
