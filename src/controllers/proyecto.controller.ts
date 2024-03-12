@@ -29,6 +29,7 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
     const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
     const estado = await EstadoTareaModel.findOne({ nombre: "Iniciando" });
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    //TODO: Castear fechaInicio string -> date
     const proyecto = new ProyectoModel({
         nombre, 
         presupuesto, 
