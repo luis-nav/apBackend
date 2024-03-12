@@ -9,4 +9,4 @@ const estadoTareaSchema = new mongoose.Schema({
     }
 });
 
-export const DepartamentoModel = mongoose.model<EstadoTarea>("EstadoTarea", estadoTareaSchema);
+export const EstadoTareaModel = mongoose.model<EstadoTarea>("EstadoTarea", estadoTareaSchema);
