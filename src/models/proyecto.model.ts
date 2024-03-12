@@ -94,4 +94,6 @@ const proyectSchema = new mongoose.Schema<Proyecto>({
         ref: "Reunion",
     }
 
-})
+});
+
+export const ProyectoModel = mongoose.model("Proyecto", proyectSchema);
