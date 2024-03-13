@@ -14,7 +14,7 @@ export const getProyectos: RequestHandler = async (req: Request, res: Response) 
 }
 
 export const getProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const { nombre } = req.body;
+    const nombre  = req.params.nombre;
     // findOne({ nombre: nombre }) <- En notacion de JS es lo mismo que hacer esto
     const proyecto = await ProyectoModel.findOne({ nombre })
         .populate("responsable")
@@ -46,11 +46,12 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
 }
 
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const { nombre, nuevoNombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
+    const nombrePorBuscar  = req.params.nombre;
+    const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     try {
-        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre }, {
-            nombre: nuevoNombre,
+        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombrePorBuscar }, {
+            nombre,
             presupuesto, 
             descripcion,
             responsable,
@@ -60,15 +61,15 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
     
         await nuevoProyecto.save();
     
-        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoNombre}` });
+        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nombre}` });
     } catch (error) {
         return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
     }
 }
 
 export const eliminarProyecto: RequestHandler = async (req:Request, res:Response) => {
-    const { nombre } = req.body;
-
+    const nombre  = req.params.nombre;
+    
     try {
         await ProyectoModel.findOneAndDelete({ nombre });
         return res.status(200).json({ message: "Se ha eliminado el proyecto con exito" });
