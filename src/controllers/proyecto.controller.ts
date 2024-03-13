@@ -29,16 +29,46 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
     const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
     const estado = await EstadoTareaModel.findOne({ nombre: "Iniciando" });
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    //TODO: Castear fechaInicio string -> date
-    const proyecto = new ProyectoModel({
-        nombre, 
+    try {
+        const proyecto = new ProyectoModel({
+            nombre, 
+            presupuesto, 
+            descripcion,
+            estado,
+            responsable,
+            fechaInicio
+        });
+        await proyecto.save();
+        return res.status(201).json({ message: "Proyecto creado!"});  
+    } catch (error) {
+        return res.status(400).json({ message: "No se ha podido crear el proyecto!" });;
+    }
+}
+
+export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
+    const { nombre, nuevoNombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
+    const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre }, {
+        nombre: nuevoNombre,
         presupuesto, 
         descripcion,
-        estado,
         responsable,
         fechaInicio
     });
-    await proyecto.save();
+    if (!nuevoProyecto) return res.status(400).json({message: "No se pudo editar el proyecto!"});
 
-    return res.status(201).json({ message: "Proyecto creado!"})
+    await nuevoProyecto.save();
+
+    return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoNombre}` });
+}
+
+export const eliminarProyecto: RequestHandler = async (req:Request, res:Response) => {
+    const { nombre } = req.body;
+
+    try {
+        await ProyectoModel.findOneAndDelete({ nombre });
+        return res.status(200).json({ message: "Se ha eliminado el proyecto con exito" });
+    } catch (error) {
+        return res.status(200).json({ message: "No se ha podido eliminar el proyecto" })
+    }
 }
