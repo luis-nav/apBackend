@@ -41,25 +41,29 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
         await proyecto.save();
         return res.status(201).json({ message: "Proyecto creado!"});  
     } catch (error) {
-        return res.status(400).json({ message: "No se ha podido crear el proyecto!" });;
+        return res.status(400).json({ message: `Error: No se ha podido crear el proyecto: ${error}` });;
     }
 }
 
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
     const { nombre, nuevoNombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre }, {
-        nombre: nuevoNombre,
-        presupuesto, 
-        descripcion,
-        responsable,
-        fechaInicio
-    });
-    if (!nuevoProyecto) return res.status(400).json({message: "No se pudo editar el proyecto!"});
-
-    await nuevoProyecto.save();
-
-    return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoNombre}` });
+    try {
+        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre }, {
+            nombre: nuevoNombre,
+            presupuesto, 
+            descripcion,
+            responsable,
+            fechaInicio
+        });
+        if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
+    
+        await nuevoProyecto.save();
+    
+        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoNombre}` });
+    } catch (error) {
+        return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
+    }
 }
 
 export const eliminarProyecto: RequestHandler = async (req:Request, res:Response) => {
@@ -69,6 +73,6 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
         await ProyectoModel.findOneAndDelete({ nombre });
         return res.status(200).json({ message: "Se ha eliminado el proyecto con exito" });
     } catch (error) {
-        return res.status(200).json({ message: "No se ha podido eliminar el proyecto" })
+        return res.status(200).json({ message: `Error: No se ha podido eliminar el proyecto: ${error}` })
     }
 }
