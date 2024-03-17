@@ -22,13 +22,19 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         .populate({ path: "foro", populate: { path: "mensajes", populate: { path: "colaborador" } } })
         .populate({ path: "reuniones", populate: { path: "colaboradores" } })
         .lean().exec();
+    if (proyecto === null) {
+        return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
+    }
     return res.status(200).json(proyecto);
 }
 
 export const crearProyecto: RequestHandler = async (req: Request, res: Response) => {
     const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
-    const estado = await EstadoTareaModel.findOne({ nombre: "Iniciando" });
+    const estado = await EstadoTareaModel.findOne({ nombre: "Por hacer" });
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    if (responsable === null) {
+        return res.status(404).json({ message: "Error: El nombre del responsable no es valido"})
+    }
     try {
         const proyecto = new ProyectoModel({
             nombre, 
@@ -50,7 +56,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
     const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     try {
-        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombrePorBuscar }, {
+        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombrePorBuscar }, {
             nombre,
             presupuesto, 
             descripcion,
@@ -58,10 +64,10 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
             fechaInicio
         });
         if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
-    
+        
         await nuevoProyecto.save();
     
-        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nombre}` });
+        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoProyecto.nombre}` });
     } catch (error) {
         return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
     }
