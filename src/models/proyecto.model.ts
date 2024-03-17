@@ -33,7 +33,8 @@ const cambioSchema = new mongoose.Schema<Cambio>({
     },
     tiempo: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
     },
 });
 
