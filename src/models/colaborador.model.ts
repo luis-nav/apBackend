@@ -29,7 +29,7 @@ const colaboradorSchema = new mongoose.Schema({
     proyecto: {
         type: Schema.Types.ObjectId,
         ref: "Proyecto",
-        required: true,
+        default: null
     },
     contrasena: {
         type: String,
