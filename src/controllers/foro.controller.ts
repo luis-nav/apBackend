@@ -6,8 +6,12 @@ import { ForoModel } from "../models/foro.model";
 export const getForoProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.nombreProyecto;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto })
+    const  foro = proyecto?.foro
     if (proyecto === null) {
         return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
+    }
+    else if(foro === null) {
+        return res.status(404).json({ message: "El proyecto seleccionado no cuenta con foro" });
     }
     else {
         const foro = await ProyectoModel.find({ nombreProyecto })
