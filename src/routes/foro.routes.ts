@@ -3,10 +3,10 @@ import { getForoProyecto, getForoGeneral, crearForoProyecto } from "../controlle
 
 const router = Router();
 
-router.get("/:nombre", getForoProyecto);
+router.get("/:proyecto", getForoProyecto);
 
 router.get("/", getForoGeneral);
 
-router.post("/:nombre", crearForoProyecto);
+router.post("/:proyecto", crearForoProyecto);
 
 export default router;

@@ -4,7 +4,7 @@ import { ProyectoModel } from "../models/proyecto.model";
 import { ForoModel } from "../models/foro.model";
 
 export const getForoProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const nombreProyecto  = req.params.nombreProyecto;
+    const nombreProyecto  = req.params.proyecto;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto })
     const  foro = proyecto?.foro
     if (proyecto === null) {
@@ -27,7 +27,7 @@ export const getForoGeneral: RequestHandler = async (req: Request, res: Response
 }
 
 export const crearForoProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const nombreProyecto  = req.params.nombreProyecto;
+    const nombreProyecto  = req.params.proyecto;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto })
     if (proyecto === null) {
         return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
