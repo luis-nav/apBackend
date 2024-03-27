@@ -8,4 +8,5 @@ export interface Colaborador {
     telefono: string,
     proyecto: ObjectId,
     contrasena: string,
+    validarContrasena?: (contrasenaCandidata:Error, callback: (err:any, esValida:any) => any) => void
 }
