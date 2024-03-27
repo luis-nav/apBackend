@@ -7,7 +7,7 @@ app = 'backend-ap'
 primary_region = 'mia'
 
 [build]
-  image = 'flyio/hellofly:latest'
+  dockerfile = 'Dockerfile'
 
 [http_service]
   internal_port = 8080
