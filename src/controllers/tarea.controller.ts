@@ -1,78 +1,81 @@
 import { Request, Response, RequestHandler } from "express";
 
-import { TareaModel } from "../models/tarea.model";
 import { ColaboradorModel } from "../models/colaborador.model";
 import { EstadoTareaModel } from "../models/estadoTarea.model";
+import { ProyectoModel } from "../models/proyecto.model";
 
 export const getTareas: RequestHandler = async (req: Request, res: Response) => {
-    const tareas = await TareaModel.find({})
-        .populate({ path: "responsable", select: "nombre"})
-        .populate("estado")
-        .lean().exec();
-    return res.status(200).json(tareas);
+    const nombreProyecto = req.params.nombreProyecto;
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("tareas.responsable").populate("tareas.estado");
+    if (!proyecto) return res.status(400).json({ message: "Error: No se encontro el proyecto "});
+    return res.status(200).json(proyecto.tareas);
 }
 
-export const getTarea: RequestHandler = async (req: Request, res: Response) => {
-    const nombre  = req.params.nombre;
-    const tarea = await TareaModel.findOne({ nombre })
-        .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono"]})
-        .populate("estado")
-        .lean().exec();
-    if (tarea === null) {
-        return res.status(404).json({ message: "Error: No se ha encontrado la tarea" });
-    }
-    return res.status(200).json(tarea);
-}
+// export const getTarea: RequestHandler = async (req: Request, res: Response) => {
+//     const nombre  = req.params.nombre;
+//     const tarea = await TareaModel.findOne({ nombre })
+//         .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono"]})
+//         .populate("estado")
+//         .lean().exec();
+//     if (tarea === null) {
+//         return res.status(404).json({ message: "Error: No se ha encontrado la tarea" });
+//     }
+//     return res.status(200).json(tarea);
+// }
 
 export const crearTarea: RequestHandler = async (req: Request, res: Response) => {
+    const nombreProyecto = req.params.nombreProyecto;
     const { nombre, storyPoints, nombreResponsable } = req.body;
+
     const estado = await EstadoTareaModel.findOne({ nombre: "Por hacer" });
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: El nombre del responsable no es válido"})
     }
+    const tarea = { nombre, storyPoints, responsable, estado };
     try {
-        const tarea = new TareaModel({
-            nombre,
-            storyPoints, 
-            responsable,
-            estado
-        });
-        await tarea.save();
-        return res.status(201).json({ message: "Tarea creada!"});  
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $push: { tareas: tarea }}).populate("tareas.responsable", ["nombre"]).populate("tareas.estado");
+        if (!proyecto) return res.status(400).json({ message: "Error: No se encontro el proyecto "});
+        return res.status(201).json({ message: "Tarea creada!", proyecto});  
     } catch (error) {
         return res.status(400).json({ message: `Error: No se ha podido crear la tarea: ${error}` });;
     }
 }
 
 export const actualizarTarea: RequestHandler = async (req: Request, res: Response) => {
-    const nombrePorBuscar  = req.params.nombre;
-    const { nombre, storyPoints, nombreResponsable, estado } = req.body;
+    const nombreProyecto = req.params.nombreProyecto;
+    const nombre = req.params.nombre
+    const { nombreNuevo, storyPoints, nombreResponsable, estadoTarea } = req.body;
+
+    const estado = await EstadoTareaModel.findOne({ nombre: estadoTarea });
+    if (!estado) { return res.status(400).json({ message: "Error: Estado de Tarea invalido" }) }
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    try {
-        const nuevaTarea = await TareaModel.findOneAndUpdate({ nombre: nombrePorBuscar }, {
-            nombre,
-            storyPoints, 
-            responsable,
-            estado
-        });
-        if (!nuevaTarea) return res.status(400).json({message: "Error: No se pudo encontrar la tarea!"});
-        
-        await nuevaTarea.save();
+    if (!responsable) { return res.status(404).json({ message: "Error: El nombre del responsable no es válido" }) }
+    const tarea = { nombre: nombreNuevo, storyPoints, responsable, estado };
     
-        return res.status(200).json({ message: `Se ha actualizado la tarea ${nuevaTarea.nombre}` });
+    try {
+        const update = await ProyectoModel.updateOne(
+            { nombre: nombreProyecto, "tareas.nombre": nombre }, 
+            { $set: { "tareas.$": tarea } });
+        if (!update) return res.status(400).json({ message: "Error: No se ha podido actualizar la tarea"});
+        const proyecto = await ProyectoModel.findOne( {nombre: nombreProyecto })
+        .populate("tareas.responsable", ["nombre"])
+        .populate("tareas.estado");
+        return res.status(201).json({ message: "Tarea creada!", proyecto});  
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se pudo editar la tarea: ${error}`})
+        return res.status(400).json({ message: `Error: No se ha podido actualizar la tarea: ${error}` });;
     }
 }
 
-export const eliminarTarea: RequestHandler = async (req:Request, res:Response) => {
-    const nombre  = req.params.nombre;
-    
+export const eliminarTarea: RequestHandler = async (req: Request, res: Response) => {
+    const nombreProyecto = req.params.nombreProyecto;
+    const nombre = req.params.nombre
+
     try {
-        await TareaModel.findOneAndDelete({ nombre });
-        return res.status(200).json({ message: "Se ha eliminado la tarea con éxito" });
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $pull: { tareas: { nombre } }}).populate("tareas.responsable", ["nombre"]).populate("tareas.estado");
+        if (!proyecto) return res.status(400).json({ message: "Error: No se logro eliminar la tarea del proyecto "});
+        return res.status(201).json({ message: "Tarea eliminada!", proyecto});  
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido eliminar la tarea: ${error}` })
+        return res.status(400).json({ message: `Error: No se ha eliminar la tarea: ${error}` });;
     }
 }
