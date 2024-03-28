@@ -128,3 +128,38 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
         return res.status(400).json({ message: `Error: No se ha podido asignar el proyecto: ${error}`});   
     }
 }
+
+export const asignarDepartamento: RequestHandler = async (req:Request, res: Response) => {
+    const cedula = req.params.cedula
+
+    const { correo, contrasena, nombreDepartamento } = req.body
+
+    const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto").populate("departamento");
+
+    if (!colaborador) {
+        return res.status(400).json({ message: `Error: No se ha podido encontrar al colaborador` });
+    } 
+
+    const admin = await ColaboradorModel.findOne({ correo });
+    
+    if (!admin || !admin.validarContrasena) {
+        return res.status(400).json({ message: `Error: No se ha podido verificar el administrador` });
+    }
+    try {
+        admin.validarContrasena(contrasena, async (err, esValida) => {
+            if (err || !esValida) {
+                return res.status(400).json({ message: `Error: No se ha podido verificar el administrador` });
+            }  else {
+                const departamento = await DepartamentoModel.findOne({ nombre: nombreDepartamento });
+                if (!departamento) {
+                    return res.status(400).json({ message: "Error: No se ha encontrado el departamento" })
+                }
+                colaborador.departamento = departamento
+                await colaborador.save()
+                return res.status(200).json({ message: `Se ha asignado a ${colaborador.nombre} al departamento de ${departamento.nombre}`});
+            }
+        })
+    } catch (error) {
+        return res.status(400).json({ message: `Error: No se ha podido asignar al departamento: ${error}`});   
+    }
+}
