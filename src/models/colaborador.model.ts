@@ -34,6 +34,10 @@ const colaboradorSchema = new mongoose.Schema({
     contrasena: {
         type: String,
         required: true,
+    },
+    admin: {
+        type: Boolean,
+        default: false,
     }
 });
 

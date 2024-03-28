@@ -4,9 +4,10 @@ export interface Colaborador {
     cedula: string,
     nombre: string,
     correo: string,
-    departamento: ObjectId,
+    departamento: any,
     telefono: string,
     proyecto: ObjectId,
     contrasena: string,
-    validarContrasena?: (contrasenaCandidata:Error, callback: (err:any, esValida:any) => any) => void
+    admin: boolean,
+    validarContrasena?: (contrasenaCandidata:string, callback: (err:Error | null, esValida:boolean) => any) => void
 }
