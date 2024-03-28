@@ -6,7 +6,7 @@ export interface Colaborador {
     correo: string,
     departamento: any,
     telefono: string,
-    proyecto: ObjectId,
+    proyecto: any,
     contrasena: string,
     admin: boolean,
     validarContrasena?: (contrasenaCandidata:string, callback: (err:Error | null, esValida:boolean) => any) => void

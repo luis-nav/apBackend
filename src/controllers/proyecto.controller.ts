@@ -1,4 +1,4 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, Response, RequestHandler, response } from "express";
 
 import { ProyectoModel } from "../models/proyecto.model";
 import { EstadoTareaModel } from '../models/estadoTarea.model';
@@ -45,6 +45,8 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
             fechaInicio
         });
         await proyecto.save();
+        responsable.proyecto = proyecto;
+        await responsable.save();
         return res.status(201).json({ message: "Proyecto creado!"});  
     } catch (error) {
         return res.status(400).json({ message: `Error: No se ha podido crear el proyecto: ${error}` });;
