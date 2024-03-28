@@ -4,6 +4,31 @@ import { ProyectoModel } from "../models/proyecto.model";
 import { EstadoTareaModel } from '../models/estadoTarea.model';
 import { ColaboradorModel } from "../models/colaborador.model";
 
+const definirCambios = (cambiosProyecto: any, responsable: any) => {
+    let cambioString = ""
+    const cambioObj:{nombre?: any, presupuesto?: any, descripcion?: any, responsable?:any} = {}
+
+    if (cambiosProyecto.nombre) {
+        cambioString += "nombre, "
+        cambioObj.nombre = cambiosProyecto.nombre;
+    }
+    if (cambiosProyecto.presupuesto) {
+        cambioString += "presupuesto, "
+        cambioObj.presupuesto = cambiosProyecto.presupuesto;
+    }
+    if (cambiosProyecto.descripcion) {
+        cambioString += "descripcion, "
+        cambioObj.descripcion = cambiosProyecto.descripcion;
+    }
+    if (responsable) {
+        cambioString += "responsable, "
+        cambioObj.responsable = responsable;
+    }
+    if (cambioString) {
+        cambioString = cambioString.slice(0, -2)
+    }
+    return { cambioString, cambioObj }
+}
 
 export const getProyectos: RequestHandler = async (req: Request, res: Response) => {
     const proyectos = await ProyectoModel.find({})
@@ -55,18 +80,16 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
 
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombrePorBuscar  = req.params.nombre;
-    const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
+    const { nombre, presupuesto, descripcion, nombreResponsable } = req.body;
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    const cambios = definirCambios( { nombre, presupuesto, descripcion }, responsable)
     try {
-        const nuevoProyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombrePorBuscar }, {
-            nombre,
-            presupuesto, 
-            descripcion,
-            responsable,
-            fechaInicio
-        });
+        const descripcionDeCambios = `Se cambio: ${cambios.cambioString}` 
+        const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
+            { nombre: nombrePorBuscar }, 
+            { ...cambios.cambioObj, $push: { cambios: { descripcion: descripcionDeCambios} }}
+        );
         if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
-        
         await nuevoProyecto.save();
     
         return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoProyecto.nombre}` });
