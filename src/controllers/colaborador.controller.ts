@@ -61,7 +61,8 @@ export const logearColaborador:RequestHandler = async (req: Request, res: Respon
 }
 
 export const modificarColaborador:RequestHandler = async (req:Request, res: Response) => {
-    const { cedula, correo, telefono, nuevaContrasena, contrasena } = req.body;
+    const cedula = req.params.cedula
+    const { correo, telefono, nuevaContrasena, contrasena } = req.body;
     
     const colaborador = await ColaboradorModel.findOne({ cedula });
 
