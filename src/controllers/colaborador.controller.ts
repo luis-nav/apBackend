@@ -18,8 +18,12 @@ const formatearColaborador = (colaborador:any) => {
 }
 
 export const registrarColaborador:RequestHandler = async (req: Request, res: Response) => {
-    const { cedula, nombre, correo, nombreDepartamento, telefono, contrasena, proyecto } = req.body;
+    const { cedula, nombre, correo, nombreDepartamento, telefono, contrasena, nombreProyecto } = req.body;
+    const correoRegex = new RegExp(".*@estudiantec\.cr")
+    if (!correo || !correoRegex.test(correo) ) return res.status(400).json({ message: "Error: El correo no es valido" })
     const departamento = await DepartamentoModel.findOne({ nombre: nombreDepartamento });
+    if (!departamento) return res.status(400).json({ message: "Error: Departamento Invalido" })
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
         const colaborador = new ColaboradorModel({
             cedula,
