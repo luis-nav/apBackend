@@ -6,7 +6,6 @@ import { ProyectoModel } from "../models/proyecto.model";
 
 const formatearColaborador = (colaborador:any) => {
     return { 
-        _id: colaborador._id, 
         cedula: colaborador.cedula, 
         nombre: colaborador.nombre,
         correo: colaborador.correo,
