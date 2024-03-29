@@ -3,9 +3,9 @@ import { getForoProyecto, getForoGeneral, crearForoProyecto } from "../controlle
 
 const router = Router();
 
-router.get("/:proyecto", getForoProyecto);
-
 router.get("/", getForoGeneral);
+
+router.get("/:proyecto", getForoProyecto);
 
 router.post("/:proyecto", crearForoProyecto);
 
