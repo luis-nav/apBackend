@@ -98,6 +98,21 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
     }
 }
 
+export const actualizarEstadoProyecto: RequestHandler = async (req: Request, res: Response) => {
+    const nombre  = req.params.nombre;
+    const { nombreEstado } = req.body;
+    try {
+        const estado = await EstadoTareaModel.findOne({ nombre: nombreEstado });
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre }, { estado });
+        if (!proyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
+        await proyecto.save();
+    
+        return res.status(200).json({ message: `Se ha actualizado el estado del proyecto ${proyecto.nombre}` });
+    } catch (error) {
+        return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
+    }
+}
+
 export const eliminarProyecto: RequestHandler = async (req:Request, res:Response) => {
     const nombre  = req.params.nombre;
     
