@@ -16,6 +16,7 @@ const colaboradorSchema = new mongoose.Schema({
     correo: {
         type: String,
         required: true,
+        unique: true,
     },
     departamento: {
         type: Schema.Types.ObjectId,
