@@ -14,7 +14,7 @@ export const getForoProyecto: RequestHandler = async (req: Request, res: Respons
 }
 
 export const getForoGeneral: RequestHandler = async (req: Request, res: Response) => {
-    const foroGeneral = await ForoModel.find({ esDeProyecto: false }).lean().exec();
+    const foroGeneral = await ForoModel.findOne({ esDeProyecto: false });;
     return res.status(200).json(foroGeneral);
 }
 
