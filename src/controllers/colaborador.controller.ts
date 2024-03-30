@@ -169,5 +169,6 @@ export const asignarDepartamento: RequestHandler = async (req:Request, res: Resp
 
 export const getAllColaboradores: RequestHandler = async (req:Request, res: Response) => {
     const colaboradores = await ColaboradorModel.find({});
-    return res.status(200).json(colaboradores);
+    const colaboradoresFormateados = colaboradores.map(colab => formatearColaborador(colab))
+    return res.status(200).json(colaboradoresFormateados);
 }
