@@ -1,8 +1,11 @@
 import { Request, Response, RequestHandler, response } from "express";
+import { ObjectId } from "mongoose";
 
 import { ProyectoModel } from "../models/proyecto.model";
 import { EstadoTareaModel } from '../models/estadoTarea.model';
 import { ColaboradorModel } from "../models/colaborador.model";
+import { enviarCambiosColaboradores } from "../utils/mail.functions";
+
 
 const definirCambios = (cambiosProyecto: any, responsable: any) => {
     let cambioString = ""
@@ -81,16 +84,20 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombrePorBuscar  = req.params.nombre;
     const { nombre, presupuesto, descripcion, nombreResponsable } = req.body;
+
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    const cambios = definirCambios( { nombre, presupuesto, descripcion }, responsable)
+    const cambios = definirCambios( { nombre, presupuesto, descripcion }, responsable);
+
     try {
         const descripcionDeCambios = `Se cambio: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
             { ...cambios.cambioObj, $push: { cambios: { descripcion: descripcionDeCambios} }}
-        );
+        ).populate("colaboradores");
         if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
         await nuevoProyecto.save();
+
+        await enviarCambiosColaboradores(cambios.cambioString, nuevoProyecto);
     
         return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoProyecto.nombre}` });
     } catch (error) {
