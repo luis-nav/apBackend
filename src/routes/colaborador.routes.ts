@@ -1,9 +1,10 @@
 import { Router } from "express";
 
-import { asignarDepartamento, asignarProyecto, logearColaborador, modificarColaborador, registrarColaborador } from "../controllers/colaborador.controller";
+import { asignarDepartamento, asignarProyecto, getAllColaboradores, logearColaborador, modificarColaborador, registrarColaborador } from "../controllers/colaborador.controller";
 
 const router = Router();
 
+router.get("/", getAllColaboradores)
 router.post("/", registrarColaborador)
 router.post("/login", logearColaborador)
 router.put("/:cedula", modificarColaborador)

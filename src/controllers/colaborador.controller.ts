@@ -166,3 +166,8 @@ export const asignarDepartamento: RequestHandler = async (req:Request, res: Resp
         return res.status(400).json({ message: `Error: No se ha podido asignar al departamento: ${error}`});   
     }
 }
+
+export const getAllColaboradores: RequestHandler = async (req:Request, res: Response) => {
+    const colaboradores = await ColaboradorModel.find({});
+    return res.status(200).json(colaboradores);
+}
