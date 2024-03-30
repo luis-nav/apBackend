@@ -168,14 +168,14 @@ export const asignarDepartamento: RequestHandler = async (req:Request, res: Resp
 }
 
 export const getAllColaboradores: RequestHandler = async (req:Request, res: Response) => {
-    const colaboradores = await ColaboradorModel.find({});
+    const colaboradores = await ColaboradorModel.find({}).populate("departamento");
     const colaboradoresFormateados = colaboradores.map(colab => formatearColaborador(colab))
     return res.status(200).json(colaboradoresFormateados);
 }
 
 export const getColaborador: RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula;
-    const colaborador = await ColaboradorModel.findOne({ cedula });
+    const colaborador = await ColaboradorModel.findOne({ cedula }).populate("departamento").populate("proyecto");
     if (!colaborador) { return res.status(404).json({ message: "Error: No se ha encontrado al colaborador" }) }
     const colaboradorFinal = formatearColaborador(colaborador);
     return res.status(200).json(colaboradorFinal);
