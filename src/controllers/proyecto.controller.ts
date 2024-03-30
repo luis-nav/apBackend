@@ -93,7 +93,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
             { ...cambios.cambioObj, $push: { cambios: { descripcion: descripcionDeCambios} }}
-        ).populate("colaboradores");
+        );
         if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
         await nuevoProyecto.save();
 
