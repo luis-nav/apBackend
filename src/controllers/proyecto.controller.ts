@@ -48,11 +48,10 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono", "departamento"]})
         .populate("estado")
         .populate({ path: "foro", populate: { path: "mensajes", populate: { path: "colaborador" } } })
-        .populate({ path: "reuniones", populate: { path: "colaboradores" } })
-        .lean().exec();
-    if (proyecto === null) {
-        return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
-    }
+        .populate({ path: "reuniones", populate: { path: "colaboradores" } });
+    if (!proyecto) { return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" }) }
+    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
+    proyecto.colaboradores = colaboradores;
     return res.status(200).json(proyecto);
 }
 

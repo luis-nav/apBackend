@@ -16,5 +16,6 @@ export interface Proyecto {
     cambios: Cambio[],
     recursos: Recurso[],
     foro: any,
-    reuniones: ObjectId[]
+    reuniones: ObjectId[],
+    colaboradores?: any
 }
