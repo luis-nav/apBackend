@@ -72,9 +72,10 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 if (err || !esValida) {
                     return res.status(400).json({ message: `Error: No se ha podido iniciar sesion` });
                 } else {
+                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena }).filter(([_, value]) => value !== undefined))
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
-                        { correo, departamento, telefono, contrasena },
+                        cambioObj,
                         { new: true }).populate("proyecto");
                     if (!colaboradorEditado) return res.status(200).json({ message: "Se ha editado al colaborador" });
                     const colaboradorFinal = formatearColaborador(colaborador)
@@ -82,9 +83,10 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 }  
             });
         } else {
+            const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono }).filter(([_, value]) => value !== undefined))
             const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                 colaborador._id, 
-                { correo, departamento, telefono },
+                cambioObj,
                 { new: true }).populate("proyecto");
             if (!colaboradorEditado) return res.status(200).json({ message: "Se ha editado al colaborador" });
             const colaboradorFinal = formatearColaborador(colaborador)
@@ -92,6 +94,35 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
         }
     } catch (error) {
         return res.status(400).json({ message: `Error: No se ha podido modificar el colaborador` });
+    }
+}
+
+export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res: Response) => {
+    const cedula = req.params.cedula
+    const { correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
+    
+    const colaborador = await ColaboradorModel.findOne({ cedula });
+
+    if (!colaborador) return res.status(404).json({ message: `Error: Couldn't find collaborator` });
+
+    if (nombreProyecto && nombreProyecto !== "") {
+        const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
+        if (!proyecto) return res.status(404).json({ message: `Error: Couldn't find project ${nombreProyecto}`});
+    }
+    
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
+    try {
+        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena, proyecto }).filter(([_, value]) => value !== undefined))
+        const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
+            colaborador._id, 
+            cambioObj,
+            { new: true }).populate("proyecto");
+        if (!colaboradorEditado) return res.status(200).json({ message: "Error: Couldn't update collaborator" });
+        const colaboradorFinal = formatearColaborador(colaborador)
+        return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
+        
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Couldn't update collaborator` });
     }
 }
 
