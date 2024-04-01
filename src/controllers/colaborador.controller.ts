@@ -143,3 +143,19 @@ export const getColaborador: RequestHandler = async (req:Request, res: Response)
     const colaboradorFinal = formatearColaborador(colaborador);
     return res.status(200).json(colaboradorFinal);
 }
+
+export const eliminarColaborador: RequestHandler = async (req:Request, res: Response) => {
+    const cedula = req.params.cedula;
+    const colaborador = await ColaboradorModel.findOne({ cedula });
+    if (!colaborador) { return res.status(404).json({ message: `Error: Couldn't find collaborator with id ${cedula}`})}
+    const proyectoACargo = await ProyectoModel.findOne({ responsable: colaborador });
+
+    if (proyectoACargo) { return res.status(400).json({ message: `Error: Can't delete collaborator ${colaborador.nombre} because they are responsible for the project ${proyectoACargo.nombre}` })}
+
+    try {
+        const eliminacion = await ColaboradorModel.findOneAndDelete({ cedula });
+        return res.status(200).json({ message: `${colaborador.nombre} has been eliminated from the system!`})
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Couldn't delete collaborator with id ${cedula}` })
+    }
+}
