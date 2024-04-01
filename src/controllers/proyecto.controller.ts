@@ -45,7 +45,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
     const nombre  = req.params.nombre;
     // findOne({ nombre: nombre }) <- En notacion de JS es lo mismo que hacer esto
     const proyecto = await ProyectoModel.findOne({ nombre })
-        .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono"]})
+        .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono", "departamento"]})
         .populate("estado")
         .populate({ path: "foro", populate: { path: "mensajes", populate: { path: "colaborador" } } })
         .populate({ path: "reuniones", populate: { path: "colaboradores" } })

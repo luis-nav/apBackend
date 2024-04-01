@@ -19,8 +19,7 @@ const colaboradorSchema = new mongoose.Schema({
         unique: true,
     },
     departamento: {
-        type: Schema.Types.ObjectId,
-        ref: "Departamento",
+        type: String,
         required: true,
     },
     telefono: {
