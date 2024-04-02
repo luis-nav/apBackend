@@ -9,7 +9,7 @@ app.use(express.json());
 app.use("/api", apiRouter)
 
 app.get("*", (req: Request, res:Response) => {
-    return res.status(404).json({ message: "La ruta no existe"});
+    return res.status(404).json({ message: "The route does not exist"});
 });
 
 export default app

@@ -8,7 +8,7 @@ export const getReuniones: RequestHandler = async (req: Request, res: Response) 
     const nombreProyecto  = req.params.nombreProyecto;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto })
     if (proyecto === null) {
-        return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
+        return res.status(404).json({ message: "Error: Project not found" });
     }
     else {
         const reuniones = await ProyectoModel.find({ nombreProyecto })
@@ -23,7 +23,7 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
     const { fecha, temaReunion, medioReunion, formatoInvitacion, colaboradores } = req.body;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto });
     if (proyecto === null) {
-        return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
+        return res.status(404).json({ message: "Error: Project not found" });
     }
     else {
         let empleados: any[] = []
@@ -31,7 +31,7 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
         colaboradores.array.forEach((nombre: string) => {
             const colab = ColaboradorModel.findOne({ nombre: nombre });
             if (colab === null) {
-                return res.status(404).json({ message: `Error: ${nombre} no es un colaborador registrado`})
+                return res.status(404).json({ message: `Error: ${nombre} is not a registered collaborator`})
             };
             empleados.push(colab)
         });
@@ -46,9 +46,9 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
             await reunion.save();
             proyecto?.reuniones.push(reunion.id);
             await proyecto?.save();
-            return res.status(201).json({ message: "Reunión creada!"});  
+            return res.status(201).json({ message: "Meeting created!"});  
         } catch (error) {
-            return res.status(400).json({ message: `Error: No se ha podido crear la reunión: ${error}` });;
+            return res.status(400).json({ message: `Error: Could not create meeting: ${error}` });;
         }
     }
 }
@@ -58,7 +58,7 @@ export const eliminarReunion: RequestHandler = async (req:Request, res:Response)
     const { fecha, temaReunion } = req.body;
     const proyecto = await ProyectoModel.findOne({ nombre });
     if (proyecto === null) {
-        return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" });
+        return res.status(404).json({ message: "Error: Project not found" });
     }
     else {
         const reunion = proyecto.reuniones.findIndex((fecha, temaReunion) => (fecha === fecha && temaReunion === temaReunion));
@@ -66,9 +66,9 @@ export const eliminarReunion: RequestHandler = async (req:Request, res:Response)
             proyecto.reuniones.splice(reunion, 1);
             await ReunionModel.findOneAndDelete({ reunion });
             await proyecto.save();
-            return res.status(200).json({ message: "Se ha eliminado la reunión con éxito" });
+            return res.status(200).json({ message: "The meeting has been deleted successfully" });
         } catch (error) {
-            return res.status(200).json({ message: `Error: No se ha podido eliminar la reunión: ${error}` })
+            return res.status(200).json({ message: `Error: Could not delete meeting: ${error}` })
         }
     }
 }
