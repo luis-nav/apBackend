@@ -8,8 +8,8 @@ export const getForoProyecto: RequestHandler = async (req: Request, res: Respons
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto })
         .populate("foro")
         .populate( { path: "foro.mensajes", populate: { path: "colaborador", select: "nombre" }})
-    if (!proyecto) { return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" }) }
-    if (!proyecto.foro) { return res.status(404).json({ message: "El proyecto seleccionado no cuenta con foro" }) }
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    if (!proyecto.foro) { return res.status(404).json({ message: "Error: The selected project does not have a forum" }) }
     return res.status(200).json(proyecto.foro);
 }
 
@@ -21,8 +21,8 @@ export const getForoGeneral: RequestHandler = async (req: Request, res: Response
 export const crearForoProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.proyecto;
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto })
-    if (!proyecto) { return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" }) }
-    if (proyecto.foro) { return res.status(400).json({ message: "Error: El proyecto ya cuenta con un foro" })}
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    if (proyecto.foro) { return res.status(400).json({ message: "Error: The project already has a forum" })}
     const esDeProyecto = true;
     const mensajes:any[] = [];
     try {
@@ -33,9 +33,9 @@ export const crearForoProyecto: RequestHandler = async (req: Request, res: Respo
         await foro.save();
         proyecto.foro = foro;
         await proyecto.save();
-        return res.status(201).json({ message: "Foro creado!"});  
+        return res.status(201).json({ message: "Forum created!"});  
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido crear el foro: ${error}` });
+        return res.status(400).json({ message: `Error: Could not create forum: ${error}` });
     }
     
 }

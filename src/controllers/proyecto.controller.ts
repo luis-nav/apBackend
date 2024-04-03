@@ -49,7 +49,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         .populate("estado")
         .populate({ path: "foro", populate: { path: "mensajes", populate: { path: "colaborador" } } })
         .populate({ path: "reuniones", populate: { path: "colaboradores" } });
-    if (!proyecto) { return res.status(404).json({ message: "Error: No se ha encontrado el proyecto" }) }
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
     const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
     proyecto.colaboradores = colaboradores;
     return res.status(200).json(proyecto);
@@ -60,7 +60,7 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
     const estado = await EstadoTareaModel.findOne({ nombre: "Por hacer" });
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (responsable === null) {
-        return res.status(404).json({ message: "Error: El nombre del responsable no es valido"})
+        return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
     }
     try {
         const proyecto = new ProyectoModel({
@@ -74,9 +74,9 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
         await proyecto.save();
         responsable.proyecto = proyecto;
         await responsable.save();
-        return res.status(201).json({ message: "Proyecto creado!"});  
+        return res.status(201).json({ message: "Project created!"});  
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido crear el proyecto: ${error}` });;
+        return res.status(400).json({ message: `Error: Could not create project: ${error}` });;
     }
 }
 
@@ -88,19 +88,19 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
     const cambios = definirCambios( { nombre, presupuesto, descripcion }, responsable);
 
     try {
-        const descripcionDeCambios = `Se cambio: ${cambios.cambioString}` 
+        const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
             { ...cambios.cambioObj, $push: { cambios: { descripcion: descripcionDeCambios} }}
         );
-        if (!nuevoProyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
+        if (!nuevoProyecto) return res.status(400).json({message: "Error: The project could not be found"});
         await nuevoProyecto.save();
 
         await enviarCambiosColaboradores(cambios.cambioString, nuevoProyecto);
     
-        return res.status(200).json({ message: `Se ha actualizado el proyecto ${nuevoProyecto.nombre}` });
+        return res.status(200).json({ message: `The project has been updated ${nuevoProyecto.nombre}` });
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
+        return res.status(400).json({ message: `Error: Could not edit project: ${error}`})
     }
 }
 
@@ -110,12 +110,12 @@ export const actualizarEstadoProyecto: RequestHandler = async (req: Request, res
     try {
         const estado = await EstadoTareaModel.findOne({ nombre: nombreEstado });
         const proyecto = await ProyectoModel.findOneAndUpdate({ nombre }, { estado });
-        if (!proyecto) return res.status(400).json({message: "Error: No se pudo encontrar el proyecto!"});
+        if (!proyecto) return res.status(400).json({message: "Error: The project could not be found"});
         await proyecto.save();
     
-        return res.status(200).json({ message: `Se ha actualizado el estado del proyecto ${proyecto.nombre}` });
+        return res.status(200).json({ message: `Project status updated ${proyecto.nombre}` });
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se pudo editar el proyecto: ${error}`})
+        return res.status(400).json({ message: `Error: Could not edit project: ${error}`})
     }
 }
 
@@ -124,8 +124,8 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
     
     try {
         await ProyectoModel.findOneAndDelete({ nombre });
-        return res.status(200).json({ message: "Se ha eliminado el proyecto con exito" });
+        return res.status(200).json({ message: "The project has been deleted successfully" });
     } catch (error) {
-        return res.status(200).json({ message: `Error: No se ha podido eliminar el proyecto: ${error}` })
+        return res.status(200).json({ message: `Error: Could not delete project: ${error}` })
     }
 }

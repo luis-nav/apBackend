@@ -19,7 +19,7 @@ const formatearColaborador = (colaborador:any) => {
 export const registrarColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { cedula, nombre, correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
     const correoRegex = new RegExp(".*@estudiantec\.cr")
-    if (!correo || !correoRegex.test(correo) ) return res.status(400).json({ message: "Error: El correo no es valido" })
+    if (!correo || !correoRegex.test(correo) ) return res.status(400).json({ message: "Error: The email is not valid" })
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
         const colaborador = new ColaboradorModel({
@@ -33,9 +33,9 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
         });
         await colaborador.save();
         const colaboradorFinal = formatearColaborador(colaborador);
-        return res.status(201).json({ message: "Se ha creado el colaborador con exito", colaboradorFinal});
+        return res.status(201).json({ message: "Collaborator successfully created", colaboradorFinal});
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido crear el colaborador: ${error}`});
+        return res.status(400).json({ message: `Error: Collaborator could not be created: ${error}`});
     }
 }
 
@@ -46,14 +46,14 @@ export const logearColaborador:RequestHandler = async (req: Request, res: Respon
         if (!colaborador || !colaborador.validarContrasena) throw Error("Login Error")
         colaborador.validarContrasena(contrasena, (err, esValida) => {
             if (err || !esValida) {
-                return res.status(400).json({ message: `Error: No se ha podido iniciar sesion` });
+                return res.status(400).json({ message: `Error: Failed to log in` });
             }  else {
                 const colaboradorFinal = formatearColaborador(colaborador);
-                return res.status(200).json({ message: "Se ha iniciado sesion con exito", colaboradorFinal })
+                return res.status(200).json({ message: "The session has been successfully logged in", colaboradorFinal })
             }
         })
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido iniciar sesion` });
+        return res.status(400).json({ message: `Error: Failed to log in` });
     }
 }
 
@@ -63,23 +63,23 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
     
     const colaborador = await ColaboradorModel.findOne({ cedula });
 
-    if (!colaborador) return res.status(400).json({ message: `Error: No se ha podido modificar el colaborador` });
+    if (!colaborador) return res.status(400).json({ message: `Error: The collaborator could not be modified` });
 
     try {
         if (nuevaContrasena != "") {
-            if (!colaborador.validarContrasena) return res.status(400).json({ message: `Error: No se ha podido modificar el colaborador` });
+            if (!colaborador.validarContrasena) return res.status(400).json({ message: `Error: The collaborator could not be modified` });
             colaborador.validarContrasena(contrasena, async (err, esValida) => {
                 if (err || !esValida) {
-                    return res.status(400).json({ message: `Error: No se ha podido iniciar sesion` });
+                    return res.status(400).json({ message: `Error: Failed to log in` });
                 } else {
                     const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena }).filter(([_, value]) => value !== undefined))
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
                         cambioObj,
                         { new: true }).populate("proyecto");
-                    if (!colaboradorEditado) return res.status(200).json({ message: "Se ha editado al colaborador" });
+                    if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator has been edited successfully" });
                     const colaboradorFinal = formatearColaborador(colaborador)
-                    return res.status(200).json({ message: "Se ha editado al colaborador", colaboradorFinal });
+                    return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
                 }  
             });
         } else {
@@ -88,12 +88,12 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 colaborador._id, 
                 cambioObj,
                 { new: true }).populate("proyecto");
-            if (!colaboradorEditado) return res.status(200).json({ message: "Se ha editado al colaborador" });
+            if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator has been edited successfully" });
             const colaboradorFinal = formatearColaborador(colaborador)
-            return res.status(200).json({ message: "Se ha editado al colaborador", colaboradorFinal });
+            return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
         }
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido modificar el colaborador` });
+        return res.status(400).json({ message: `Error: The collaborator could not be modified` });
     }
 }
 
@@ -134,30 +134,30 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
     const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto");
 
     if (!colaborador) {
-        return res.status(400).json({ message: `Error: No se ha podido encontrar al colaborador` });
+        return res.status(400).json({ message: `Error: Collaborator could not be found` });
     } 
 
     const admin = await ColaboradorModel.findOne({ correo });
     
     if (!admin || !admin.validarContrasena) {
-        return res.status(400).json({ message: `Error: No se ha podido verificar el administrador` });
+        return res.status(400).json({ message: `Error: Failed to verify administrator` });
     }
     try {
         admin.validarContrasena(contrasena, async (err, esValida) => {
             if (err || !esValida) {
-                return res.status(400).json({ message: `Error: No se ha podido verificar el administrador` });
+                return res.status(400).json({ message: `Error: Failed to verify administrator` });
             }  else {
                 const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
                 if (!proyecto) {
-                    return res.status(400).json({ message: "Error: No se ha encontrado el proyecto" })
+                    return res.status(400).json({ message: "Error: Couldn't find project" })
                 }
                 colaborador.proyecto = proyecto
                 await colaborador.save()
-                return res.status(200).json({ message: `Se ha asignado a ${colaborador.nombre} al proyecto ${proyecto.nombre}`});
+                return res.status(200).json({ message: `${colaborador.nombre} has been assigned to the proyect ${proyecto.nombre}`});
             }
         })
     } catch (error) {
-        return res.status(400).json({ message: `Error: No se ha podido asignar el proyecto: ${error}`});   
+        return res.status(400).json({ message: `Error: The project could not be assigned: ${error}`});   
     }
 }
 
@@ -170,7 +170,7 @@ export const getAllColaboradores: RequestHandler = async (req:Request, res: Resp
 export const getColaborador: RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula;
     const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto");
-    if (!colaborador) { return res.status(404).json({ message: "Error: No se ha encontrado al colaborador" }) }
+    if (!colaborador) { return res.status(404).json({ message: "Error: Collaborator not found" }) }
     const colaboradorFinal = formatearColaborador(colaborador);
     return res.status(200).json(colaboradorFinal);
 }

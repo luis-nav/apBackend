@@ -22,9 +22,9 @@ class EmailService {
     public async sendEmail(mailOptions: nodemailer.SendMailOptions): Promise<void> {
         try {
             const info = await this.transporter.sendMail(mailOptions);
-            console.log('[Email Service]: Se ha enviado un correo: ', info.response);
+            console.log('[Email Service]: An email has been sent: ', info.response);
         } catch (error) {
-            console.error('[Email Service]: Hubo un error enviando un correo: ', error);
+            console.error('[Email Service]: There was an error sending an email: ', error);
         }
     }
 }
