@@ -43,9 +43,13 @@ const recursoSchema = new mongoose.Schema<Recurso>({
         type: String,
         required: true,
     },
-    cantidad: {
-        type: Number,
+    descripcion: {
+        type: String,
         required: true,
+    },
+    tipo: {
+        type: String,
+        required: true
     }
 });
 

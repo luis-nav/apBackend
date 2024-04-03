@@ -1,4 +1,5 @@
 export interface Recurso {
     nombre: string,
-    cantidad: number,
+    descripcion: string,
+    tipo: string
 }
