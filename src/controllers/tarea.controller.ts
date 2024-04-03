@@ -45,13 +45,13 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
 export const actualizarTarea: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
     const nombre = req.params.nombre
-    const { nombreNuevo, storyPoints, nombreResponsable, estadoTarea } = req.body;
+    const { nombreNuevo, storyPoints, nombreResponsable, estadoTarea, fechaFinal } = req.body;
 
     const estado = await EstadoTareaModel.findOne({ nombre: estadoTarea });
     if (!estado) { return res.status(400).json({ message: "Error: Invalid task status" }) }
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
-    const tarea = { nombre: nombreNuevo, storyPoints, responsable, estado };
+    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado, fechaFinal }).filter(([_, value]) => value !== undefined));
     
     try {
         const update = await ProyectoModel.updateOne(

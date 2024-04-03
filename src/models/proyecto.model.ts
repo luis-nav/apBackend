@@ -23,7 +23,15 @@ const tareaSchema = new mongoose.Schema<Tarea>({
         type: mongoose.Schema.Types.ObjectId,
         ref: "EstadoTarea",
         required: true
-    }
+    },
+    fechaInicio: {
+        type: Date,
+        required: true,
+        default: Date.now
+    },
+    fechaFinal: {
+        type: Date,
+    },
 });
 
 const cambioSchema = new mongoose.Schema<Cambio>({
