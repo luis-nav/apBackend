@@ -91,7 +91,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
-            { ...cambios.cambioObj, $push: { cambios: { descripcion: descripcionDeCambios} }}
+            { ...cambios.cambioObj }
         );
         if (!nuevoProyecto) return res.status(400).json({message: "Error: The project could not be found"});
         await nuevoProyecto.save();
@@ -127,5 +127,49 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
         return res.status(200).json({ message: "The project has been deleted successfully" });
     } catch (error) {
         return res.status(200).json({ message: `Error: Could not delete project: ${error}` })
+    }
+}
+
+export const addColab: RequestHandler = async (req: Request, res: Response) => {
+    const nombre = req.params.nombre;
+    const { nombreColab } = req.body;
+
+    const proyecto = await ProyectoModel.findOne({ nombre });
+
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
+
+    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+
+    if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
+
+    if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an asigned proyect"})}
+
+    try {
+        const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto });
+        if (!update) { return res.status(400).json({ message: "Error: Couldn't asign project" }) }
+        return res.status(200).json({ message: `The project was asigned to the collaborator ${update.nombre}` });
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Couldn't asign project: ${error}` });
+    }
+}
+
+export const removeColab: RequestHandler = async (req: Request, res: Response) => {
+    const nombre = req.params.nombre;
+    const { nombreColab } = req.body;
+
+    const proyecto = await ProyectoModel.findOne({ nombre });
+
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
+
+    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+
+    if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
+
+    try {
+        const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto: null });
+        if (!update) { return res.status(400).json({ message: "Error: Couldn't remove collaborator from project" }) }
+        return res.status(200).json({ message: `The collaborator ${update.nombre} has been successfully removed from the project ${proyecto.nombre}` });
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Couldn't remove collaborator from project: ${error}` });
     }
 }

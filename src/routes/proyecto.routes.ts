@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import recursoRouter from "./recurso.routes"
 import tareaRouter from "./tarea.routes"
-import { actualizarEstadoProyecto, actualizarProyecto, crearProyecto, eliminarProyecto, getProyecto, getProyectos } from "../controllers/proyecto.controller";
+import { actualizarEstadoProyecto, actualizarProyecto, addColab, crearProyecto, eliminarProyecto, getProyecto, getProyectos, removeColab } from "../controllers/proyecto.controller";
 
 const router = Router();
 
@@ -17,6 +17,10 @@ router.put("/:nombre", actualizarProyecto);
 router.post("/:nombre/estado", actualizarEstadoProyecto)
 
 router.delete("/:nombre", eliminarProyecto);
+
+router.post("/:nombre/colab", addColab);
+
+router.delete("/:nombre/colab", removeColab);
 
 router.use("/", tareaRouter);
 
