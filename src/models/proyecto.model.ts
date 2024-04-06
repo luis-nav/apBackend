@@ -84,6 +84,9 @@ const proyectSchema = new mongoose.Schema<Proyecto>({
         type: Date,
         required: true,
     },
+    fechaFinal: {
+        type: Date
+    },
     responsable: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Colaborador",

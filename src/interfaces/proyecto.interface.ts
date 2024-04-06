@@ -11,6 +11,7 @@ export interface Proyecto {
     estado: ObjectId,
     descripcion: string,
     fechaInicio: Date,
+    fechaFinal: Date,
     responsable: ObjectId,
     tareas: Tarea[],
     cambios: Cambio[],

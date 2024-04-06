@@ -9,7 +9,7 @@ import { enviarCambiosColaboradores } from "../utils/mail.functions";
 
 const definirCambios = (cambiosProyecto: any, responsable: any) => {
     let cambioString = ""
-    const cambioObj:{nombre?: any, presupuesto?: any, descripcion?: any, responsable?:any} = {}
+    const cambioObj:{nombre?: any, presupuesto?: any, descripcion?: any, responsable?:any, fechaFinal?:any} = {}
 
     if (cambiosProyecto.nombre) {
         cambioString += "nombre, "
@@ -26,6 +26,10 @@ const definirCambios = (cambiosProyecto: any, responsable: any) => {
     if (responsable) {
         cambioString += "responsable, "
         cambioObj.responsable = responsable;
+    }
+    if (cambiosProyecto.fechaFinal) {
+        cambioString += "fecha final, "
+        cambioObj.fechaFinal = cambiosProyecto.fechaFinal;
     }
     if (cambioString) {
         cambioString = cambioString.slice(0, -2)
@@ -82,10 +86,10 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
 
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombrePorBuscar  = req.params.nombre;
-    const { nombre, presupuesto, descripcion, nombreResponsable } = req.body;
+    const { nombre, presupuesto, descripcion, nombreResponsable, fechaFinal } = req.body;
 
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    const cambios = definirCambios( { nombre, presupuesto, descripcion }, responsable);
+    const cambios = definirCambios( { nombre, presupuesto, descripcion, fechaFinal }, responsable);
 
     try {
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
