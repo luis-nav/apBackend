@@ -35,6 +35,10 @@ const tareaSchema = new mongoose.Schema<Tarea>({
 });
 
 const cambioSchema = new mongoose.Schema<Cambio>({
+    titulo: {
+        type: String,
+        required: true,
+    },
     descripcion: {
         type: String,
         required: true,
@@ -43,6 +47,11 @@ const cambioSchema = new mongoose.Schema<Cambio>({
         type: Date,
         required: true,
         default: Date.now
+    },
+    aprobadoPor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Colaborador",
+        required: true,
     },
 });
 

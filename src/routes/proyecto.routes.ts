@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import cambioRouter from "./cambio.routes"
 import recursoRouter from "./recurso.routes"
 import tareaRouter from "./tarea.routes"
 import { actualizarEstadoProyecto, actualizarProyecto, addColab, crearProyecto, eliminarProyecto, getProyecto, getProyectos, removeColab } from "../controllers/proyecto.controller";
@@ -25,5 +26,7 @@ router.delete("/:nombre/colab", removeColab);
 router.use("/", tareaRouter);
 
 router.use("/", recursoRouter);
+
+router.use("/", cambioRouter)
 
 export default router;
