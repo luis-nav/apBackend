@@ -77,7 +77,8 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                         colaborador._id, 
                         cambioObj,
                         { new: true }).populate("proyecto");
-                    if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator has been edited successfully" });
+                    if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator couldn't be updated" });
+                    await colaboradorEditado.save()
                     const colaboradorFinal = formatearColaborador(colaborador)
                     return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
                 }  
@@ -88,7 +89,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 colaborador._id, 
                 cambioObj,
                 { new: true }).populate("proyecto");
-            if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator has been edited successfully" });
+            if (!colaboradorEditado) return res.status(400).json({ message: "The collaborator has been edited successfully" });
             const colaboradorFinal = formatearColaborador(colaborador)
             return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
         }
@@ -117,7 +118,8 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
             colaborador._id, 
             cambioObj,
             { new: true }).populate("proyecto");
-        if (!colaboradorEditado) return res.status(200).json({ message: "Error: Couldn't update collaborator" });
+        if (!colaboradorEditado) return res.status(400).json({ message: "Error: Couldn't update collaborator" });
+        await colaboradorEditado.save()
         const colaboradorFinal = formatearColaborador(colaborador)
         return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
         
