@@ -12,7 +12,7 @@ export interface Proyecto {
     descripcion: string,
     fechaInicio: Date,
     fechaFinal: Date,
-    responsable: ObjectId,
+    responsable: any,
     tareas: Tarea[],
     cambios: Cambio[],
     recursos: Recurso[],

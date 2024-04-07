@@ -42,8 +42,9 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
 export const logearColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { correo, contrasena } = req.body;
     try {
-        const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto");
+        const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto").populate("proyecto.responsable");
         if (!colaborador || !colaborador.validarContrasena) throw Error("Login Error")
+        colaborador.proyecto.responsable = colaborador.proyecto.responsable.correo
         colaborador.validarContrasena(contrasena, (err, esValida) => {
             if (err || !esValida) {
                 return res.status(400).json({ message: `Error: Failed to log in` });

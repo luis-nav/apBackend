@@ -44,6 +44,7 @@ export const getProyectos: RequestHandler = async (req: Request, res: Response) 
         .lean().exec();
     const proyectosFormatted = proyectos.map(proyecto => {
         proyecto.estado = proyecto.estado.nombre
+        proyecto.responsable = proyecto.responsable.correo
         return proyecto
     })
     return res.status(200).json(proyectosFormatted);
@@ -61,6 +62,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
     const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
     proyecto.colaboradores = colaboradores;
     proyecto.estado = proyecto.estado.nombre;
+    proyecto.responsable = proyecto.responsable.correo;
     return res.status(200).json(proyecto);
 }
 
