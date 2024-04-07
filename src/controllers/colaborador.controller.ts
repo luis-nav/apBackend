@@ -19,7 +19,7 @@ const formatearColaborador = (colaborador:any) => {
 export const registrarColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { cedula, nombre, correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
     const correoRegex = new RegExp(".*@estudiantec\.cr")
-    if (!correo || !correoRegex.test(correo) ) return res.status(400).json({ message: "Error: The email is not valid" })
+    if (!correo || !correoRegex.test(correo) ) { return res.status(400).json({ message: "Error: The email is not valid" }) }
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
         const colaborador = new ColaboradorModel({
@@ -60,6 +60,10 @@ export const logearColaborador:RequestHandler = async (req: Request, res: Respon
 export const modificarColaborador:RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula
     const { correo, departamento, telefono, nuevaContrasena, contrasena } = req.body;
+
+    const correoRegex = new RegExp(".*@estudiantec\.cr")
+
+    if (correo && !correoRegex.test(correo)) { return res.status(400).json({ message: "Error: The email is not valid" }) }
     
     const colaborador = await ColaboradorModel.findOne({ cedula });
 
@@ -101,6 +105,10 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
 export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula
     const { correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
+
+    const correoRegex = new RegExp(".*@estudiantec\.cr")
+
+    if (correo && !correoRegex.test(correo)) { return res.status(400).json({ message: "Error: The email is not valid" }) }
     
     const colaborador = await ColaboradorModel.findOne({ cedula });
 
