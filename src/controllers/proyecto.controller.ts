@@ -42,7 +42,11 @@ export const getProyectos: RequestHandler = async (req: Request, res: Response) 
         .populate({ path: "responsable", select: "nombre"})
         .populate("estado")
         .lean().exec();
-    return res.status(200).json(proyectos);
+    const proyectosFormatted = proyectos.map(proyecto => {
+        proyecto.estado = proyecto.estado.nombre
+        return proyecto
+    })
+    return res.status(200).json(proyectosFormatted);
 }
 
 export const getProyecto: RequestHandler = async (req: Request, res: Response) => {
@@ -56,6 +60,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
     const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
     proyecto.colaboradores = colaboradores;
+    proyecto.estado = proyecto.estado.nombre;
     return res.status(200).json(proyecto);
 }
 
