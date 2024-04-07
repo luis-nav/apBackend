@@ -3,6 +3,7 @@ import { Request, Response, RequestHandler } from "express";
 import { DepartamentoModel } from "../models/departamento.model";
 import { ColaboradorModel } from "../models/colaborador.model";
 import { ProyectoModel } from "../models/proyecto.model";
+import { genSalt, hash } from "bcrypt";
 
 const formatearColaborador = (colaborador:any) => {
     return { 
@@ -42,9 +43,12 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
 export const logearColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { correo, contrasena } = req.body;
     try {
-        const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto").populate("proyecto.responsable");
+        const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto")
         if (!colaborador || !colaborador.validarContrasena) throw Error("Login Error")
-        colaborador.proyecto.responsable = colaborador.proyecto.responsable.correo
+        if (colaborador.proyecto) { 
+            await colaborador.populate("proyecto.responsable") 
+            colaborador.proyecto.responsable = colaborador.proyecto.responsable.correo
+        }
         colaborador.validarContrasena(contrasena, (err, esValida) => {
             if (err || !esValida) {
                 return res.status(400).json({ message: `Error: Failed to log in` });
@@ -54,7 +58,7 @@ export const logearColaborador:RequestHandler = async (req: Request, res: Respon
             }
         })
     } catch (error) {
-        return res.status(400).json({ message: `Error: Failed to log in` });
+        return res.status(400).json({ message: `Error: Failed to log in: ${error}` });
     }
 }
 
@@ -72,18 +76,19 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
 
     try {
         if (nuevaContrasena != "") {
+            const salt = await genSalt(8);
+            const hashGenerado = await hash(nuevaContrasena, salt);
             if (!colaborador.validarContrasena) return res.status(400).json({ message: `Error: The collaborator could not be modified` });
             colaborador.validarContrasena(contrasena, async (err, esValida) => {
                 if (err || !esValida) {
                     return res.status(400).json({ message: `Error: Failed to log in` });
                 } else {
-                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena }).filter(([_, value]) => value !== undefined))
+                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: hashGenerado }).filter(([_, value]) => value !== undefined))
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
                         cambioObj,
                         { new: true }).populate("proyecto");
                     if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator couldn't be updated" });
-                    await colaboradorEditado.save()
                     const colaboradorFinal = formatearColaborador(colaborador)
                     return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
                 }  
@@ -120,20 +125,22 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
         if (!proyecto) return res.status(404).json({ message: `Error: Couldn't find project ${nombreProyecto}`});
     }
     
+    const salt = await genSalt(8);
+    const hashGenerado = await hash((contrasena ? contrasena : ""), salt);
+    
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
-        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena, proyecto }).filter(([_, value]) => value !== undefined))
+        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: (contrasena ? hashGenerado : undefined), proyecto }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null))
         const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
             colaborador._id, 
-            cambioObj,
-            { new: true }).populate("proyecto");
+            { ...cambioObj }
+        ).populate("proyecto");
         if (!colaboradorEditado) return res.status(400).json({ message: "Error: Couldn't update collaborator" });
-        await colaboradorEditado.save()
         const colaboradorFinal = formatearColaborador(colaborador)
         return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
         
     } catch (error) {
-        return res.status(400).json({ message: `Error: Couldn't update collaborator` });
+        return res.status(400).json({ message: `Error: Couldn't update collaborator: ${error}` });
     }
 }
 
