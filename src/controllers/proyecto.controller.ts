@@ -39,7 +39,7 @@ const definirCambios = (cambiosProyecto: any, responsable: any) => {
 
 export const getProyectos: RequestHandler = async (req: Request, res: Response) => {
     const proyectos = await ProyectoModel.find({})
-        .populate({ path: "responsable", select: "nombre"});
+        .populate({ path: "responsable", select: "correo"});
     const proyectosFormatted = proyectos.map(proyecto => ({
             _id: proyecto._id,
             nombre: proyecto.nombre,
