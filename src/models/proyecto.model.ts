@@ -10,6 +10,10 @@ const tareaSchema = new mongoose.Schema<Tarea>({
         type: String,
         required: true,
     },
+    descripcion: {
+        type: String,
+        required: true
+    },
     storyPoints: {
         type: Number,
         required: true,
@@ -20,8 +24,7 @@ const tareaSchema = new mongoose.Schema<Tarea>({
         required: true,
     },
     estado: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "EstadoTarea",
+        type: String,
         required: true
     },
     fechaInicio: {
@@ -77,8 +80,7 @@ const proyectSchema = new mongoose.Schema<Proyecto>({
         unique: true
     },
     estado: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "EstadoTarea",
+        type: String,
         required: true,
     },
     presupuesto: {

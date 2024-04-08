@@ -39,10 +39,22 @@ const definirCambios = (cambiosProyecto: any, responsable: any) => {
 
 export const getProyectos: RequestHandler = async (req: Request, res: Response) => {
     const proyectos = await ProyectoModel.find({})
-        .populate({ path: "responsable", select: "nombre"})
-        .populate("estado")
-        .lean().exec();
-    return res.status(200).json(proyectos);
+        .populate({ path: "responsable", select: "correo"});
+    const proyectosFormatted = proyectos.map(proyecto => ({
+            _id: proyecto._id,
+            nombre: proyecto.nombre,
+            presupuesto: proyecto.presupuesto,
+            descripcion: proyecto.descripcion,
+            fechaInicio: proyecto.fechaInicio,
+            estado: proyecto.estado,
+            responsable: proyecto.responsable.correo,
+            reuniones: proyecto.reuniones,
+            tareas: proyecto.tareas,
+            cambios: proyecto.cambios,
+            recursos: proyecto.recursos,
+            fechaFin: proyecto.fechaFinal
+        }))
+    return res.status(200).json(proyectosFormatted);
 }
 
 export const getProyecto: RequestHandler = async (req: Request, res: Response) => {
@@ -50,18 +62,31 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
     // findOne({ nombre: nombre }) <- En notacion de JS es lo mismo que hacer esto
     const proyecto = await ProyectoModel.findOne({ nombre })
         .populate({ path: "responsable", select: ["nombre", "cedula", "correo", "telefono", "departamento"]})
-        .populate("estado")
         .populate({ path: "foro", populate: { path: "mensajes", populate: { path: "colaborador" } } })
         .populate({ path: "reuniones", populate: { path: "colaboradores" } });
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
     const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
-    proyecto.colaboradores = colaboradores;
-    return res.status(200).json(proyecto);
+    const proyectoFormatted = {
+        _id: proyecto._id,
+        nombre: proyecto.nombre,
+        presupuesto: proyecto.presupuesto,
+        descripcion: proyecto.descripcion,
+        fechaInicio: proyecto.fechaInicio,
+        estado: proyecto.estado,
+        responsable: proyecto.responsable.correo,
+        reuniones: proyecto.reuniones,
+        tareas: proyecto.tareas,
+        cambios: proyecto.cambios,
+        recursos: proyecto.recursos,
+        fechaFin: proyecto.fechaFinal,
+        colaboradores
+    }
+    return res.status(200).json(proyectoFormatted);
 }
 
 export const crearProyecto: RequestHandler = async (req: Request, res: Response) => {
     const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
-    const estado = await EstadoTareaModel.findOne({ nombre: "Por hacer" });
+    const estado = "Active";
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
@@ -112,8 +137,7 @@ export const actualizarEstadoProyecto: RequestHandler = async (req: Request, res
     const nombre  = req.params.nombre;
     const { nombreEstado } = req.body;
     try {
-        const estado = await EstadoTareaModel.findOne({ nombre: nombreEstado });
-        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre }, { estado });
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre }, { estado: nombreEstado });
         if (!proyecto) return res.status(400).json({message: "Error: The project could not be found"});
         await proyecto.save();
     
@@ -176,4 +200,12 @@ export const removeColab: RequestHandler = async (req: Request, res: Response) =
     } catch (error) {
         return res.status(400).json({ message: `Error: Couldn't remove collaborator from project: ${error}` });
     }
+}
+
+export const getColabs: RequestHandler = async (req: Request, res: Response) => {
+    const nombre  = req.params.nombre;
+    const proyecto = await ProyectoModel.findOne({ nombre });
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
+    return res.status(200).json(colaboradores)
 }
