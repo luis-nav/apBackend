@@ -9,7 +9,7 @@ import { enviarCambiosColaboradores } from "../utils/mail.functions";
 
 const definirCambios = (cambiosProyecto: any, responsable: any) => {
     let cambioString = ""
-    const cambioObj:{nombre?: any, presupuesto?: any, descripcion?: any, responsable?:any, fechaFinal?:any} = {}
+    const cambioObj:{nombre?: any, presupuesto?: any, descripcion?: any, responsable?:any, fechaFinal?:any, estado?:any} = {}
 
     if (cambiosProyecto.nombre) {
         cambioString += "nombre, "
@@ -30,6 +30,10 @@ const definirCambios = (cambiosProyecto: any, responsable: any) => {
     if (cambiosProyecto.fechaFinal) {
         cambioString += "fecha final, "
         cambioObj.fechaFinal = cambiosProyecto.fechaFinal;
+    }
+    if (cambiosProyecto.estado) {
+        cambioString += "estado, "
+        cambioObj.estado = cambiosProyecto.estado
     }
     if (cambioString) {
         cambioString = cambioString.slice(0, -2)
@@ -85,9 +89,9 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
 }
 
 export const crearProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const { nombre, presupuesto, descripcion, fechaInicio, nombreResponsable } = req.body;
+    const { nombre, presupuesto, descripcion, fechaInicio, correoResponsable } = req.body;
     const estado = "Active";
-    const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
     }
@@ -111,10 +115,10 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
 
 export const actualizarProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombrePorBuscar  = req.params.nombre;
-    const { nombre, presupuesto, descripcion, nombreResponsable, fechaFinal } = req.body;
+    const { nombre, presupuesto, descripcion, correoResponsable, fechaFinal, estado } = req.body;
 
-    const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
-    const cambios = definirCambios( { nombre, presupuesto, descripcion, fechaFinal }, responsable);
+    const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
+    const cambios = definirCambios( { nombre, presupuesto, descripcion, fechaFinal, estado }, responsable);
 
     try {
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
