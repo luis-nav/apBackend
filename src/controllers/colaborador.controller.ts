@@ -75,7 +75,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
     if (!colaborador) return res.status(400).json({ message: `Error: The collaborator could not be modified` });
 
     try {
-        if (nuevaContrasena != "") {
+        if (nuevaContrasena && nuevaContrasena !== "") {
             const salt = await genSalt(8);
             const hashGenerado = await hash(nuevaContrasena, salt);
             if (!colaborador.validarContrasena) return res.status(400).json({ message: `Error: The collaborator could not be modified` });
@@ -126,7 +126,7 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
     }
     
     const salt = await genSalt(8);
-    const hashGenerado = await hash((contrasena ? contrasena : ""), salt);
+    const hashGenerado = await hash((contrasena ? contrasena : "aa"), salt);
     
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
