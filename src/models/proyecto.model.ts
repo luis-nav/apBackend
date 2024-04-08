@@ -77,8 +77,7 @@ const proyectSchema = new mongoose.Schema<Proyecto>({
         unique: true
     },
     estado: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "EstadoTarea",
+        type: String,
         required: true,
     },
     presupuesto: {

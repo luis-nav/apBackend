@@ -104,7 +104,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
             return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
         }
     } catch (error) {
-        return res.status(400).json({ message: `Error: The collaborator could not be modified` });
+        return res.status(400).json({ message: `Error: The collaborator could not be modified: ${error}` });
     }
 }
 
