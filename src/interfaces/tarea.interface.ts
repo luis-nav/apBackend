@@ -4,7 +4,7 @@ export interface Tarea {
     nombre: string,
     storyPoints: number,
     responsable: ObjectId,
-    estado: ObjectId,
+    estado: string,
     fechaInicio: Date,
     fechaFinal: Date,
 }

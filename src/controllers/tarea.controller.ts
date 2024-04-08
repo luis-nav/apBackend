@@ -6,7 +6,7 @@ import { ProyectoModel } from "../models/proyecto.model";
 
 export const getTareas: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
-    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("tareas.responsable").populate("tareas.estado");
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("tareas.responsable");
     if (!proyecto) return res.status(400).json({ message: "Error: Project not found"});
     return res.status(200).json(proyecto.tareas);
 }
@@ -27,7 +27,7 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
     const nombreProyecto = req.params.nombreProyecto;
     const { nombre, storyPoints, nombreResponsable } = req.body;
 
-    const estado = await EstadoTareaModel.findOne({ nombre: "Por hacer" });
+    const estado = "Por hacer";
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
@@ -46,12 +46,9 @@ export const actualizarTarea: RequestHandler = async (req: Request, res: Respons
     const nombreProyecto = req.params.nombreProyecto;
     const nombre = req.params.nombre
     const { nombreNuevo, storyPoints, nombreResponsable, estadoTarea, fechaFinal } = req.body;
-
-    const estado = await EstadoTareaModel.findOne({ nombre: estadoTarea });
-    if (!estado) { return res.status(400).json({ message: "Error: Invalid task status" }) }
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
-    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado, fechaFinal }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
+    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estadoTarea, fechaFinal }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
     
     try {
         const update = await ProyectoModel.updateOne(
@@ -60,7 +57,6 @@ export const actualizarTarea: RequestHandler = async (req: Request, res: Respons
         if (!update) return res.status(400).json({ message: "Error: Failed to update task"});
         const proyecto = await ProyectoModel.findOne( {nombre: nombreProyecto })
         .populate("tareas.responsable", ["nombre"])
-        .populate("tareas.estado");
         return res.status(201).json({ message: "Task created!", proyecto});  
     } catch (error) {
         return res.status(400).json({ message: `Error: Failed to update task: ${error}` });;

@@ -20,8 +20,7 @@ const tareaSchema = new mongoose.Schema<Tarea>({
         required: true,
     },
     estado: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "EstadoTarea",
+        type: String,
         required: true
     },
     fechaInicio: {
