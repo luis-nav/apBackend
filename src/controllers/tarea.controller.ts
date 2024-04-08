@@ -51,7 +51,7 @@ export const actualizarTarea: RequestHandler = async (req: Request, res: Respons
     if (!estado) { return res.status(400).json({ message: "Error: Invalid task status" }) }
     const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
     if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
-    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado, fechaFinal }).filter(([_, value]) => value !== undefined));
+    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado, fechaFinal }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
     
     try {
         const update = await ProyectoModel.updateOne(

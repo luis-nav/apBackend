@@ -83,7 +83,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 if (err || !esValida) {
                     return res.status(400).json({ message: `Error: Failed to log in` });
                 } else {
-                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: hashGenerado }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null))
+                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: hashGenerado }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
                         cambioObj,
@@ -94,7 +94,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 }  
             });
         } else {
-            const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono }).filter(([_, value]) => value !== undefined))
+            const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
             const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                 colaborador._id, 
                 cambioObj,
@@ -130,7 +130,7 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
     
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
-        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: (contrasena ? hashGenerado : undefined), proyecto }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null))
+        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: (contrasena ? hashGenerado : undefined), proyecto }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
         const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
             colaborador._id, 
             { ...cambioObj }
