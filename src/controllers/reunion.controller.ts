@@ -72,3 +72,28 @@ export const eliminarReunion: RequestHandler = async (req:Request, res:Response)
         }
     }
 }
+
+export const addColab: RequestHandler = async (req: Request, res: Response) => {
+    const nombre = req.params.nombre;
+    const { nombreColab, temaReunion, fecha } = req.body;
+
+    const proyecto = await ProyectoModel.findOne({ nombre });
+
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
+
+    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+
+    if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
+
+    const reunion = await ReunionModel.findOne({ fecha: fecha, temaReunion: temaReunion });
+
+    if (!reunion) { return res.status(404).json({ message: "Error: Meeting not found" })}
+
+    try {
+        reunion.colaboradores.push(colab.id);
+        await reunion.save();
+        return res.status(200).json({ message: `The collaborator ${colab.nombre} was added to the meeting` });
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Couldn't add the collaborator to the meeting: ${error}` });
+    }
+}

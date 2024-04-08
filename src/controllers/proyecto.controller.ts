@@ -146,7 +146,7 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
 
     if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
 
-    if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an asigned proyect"})}
+    if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an assigned proyect"})}
 
     try {
         const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto });
