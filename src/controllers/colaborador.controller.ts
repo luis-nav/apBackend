@@ -6,7 +6,33 @@ import { ProyectoModel } from "../models/proyecto.model";
 import { genSalt, hash } from "bcrypt";
 
 const formatearColaborador = (colaborador:any) => {
-    return { 
+    if (colaborador.proyecto && colaborador.proyecto._id) {
+        const proyecto = {
+            _id: colaborador.proyecto._id,
+            nombre: colaborador.proyecto.nombre,
+            presupuesto: colaborador.proyecto.presupuesto,
+            descripcion: colaborador.proyecto.descripcion,
+            fechaInicio: colaborador.proyecto.fechaInicio,
+            estado: colaborador.proyecto.estado,
+            responsable: (colaborador.proyecto.responsable && colaborador.proyecto.responsable.correo) ? colaborador.proyecto.responsable.correo : colaborador.proyecto.responsable,
+            reuniones: colaborador.proyecto.reuniones,
+            tareas: colaborador.proyecto.tareas,
+            cambios: colaborador.proyecto.cambios,
+            recursos: colaborador.proyecto.recursos,
+            fechaFin: colaborador.proyecto.fechaFinal
+        }
+        const colab = { 
+            cedula: colaborador.cedula, 
+            nombre: colaborador.nombre,
+            correo: colaborador.correo,
+            departamento: colaborador.departamento,
+            telefono: colaborador.telefono,
+            proyecto,
+            admin: colaborador.admin
+        }
+        return colab
+    }
+    const colab = { 
         cedula: colaborador.cedula, 
         nombre: colaborador.nombre,
         correo: colaborador.correo,
@@ -15,6 +41,7 @@ const formatearColaborador = (colaborador:any) => {
         proyecto: colaborador.proyecto,
         admin: colaborador.admin
     }
+    return colab
 }
 
 export const registrarColaborador:RequestHandler = async (req: Request, res: Response) => {
@@ -33,6 +60,7 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
             proyecto: proyecto ? proyecto : null,
         });
         await colaborador.save();
+        if (colaborador.proyecto) { await colaborador.populate("proyecto.responsable") }
         const colaboradorFinal = formatearColaborador(colaborador);
         return res.status(201).json({ message: "Collaborator successfully created", colaboradorFinal});
     } catch (error) {
@@ -45,10 +73,7 @@ export const logearColaborador:RequestHandler = async (req: Request, res: Respon
     try {
         const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto")
         if (!colaborador || !colaborador.validarContrasena) throw Error("Login Error")
-        if (colaborador.proyecto) { 
-            await colaborador.populate("proyecto.responsable") 
-            colaborador.proyecto.responsable = colaborador.proyecto.responsable.correo
-        }
+        if (colaborador.proyecto) { await colaborador.populate("proyecto.responsable") }
         colaborador.validarContrasena(contrasena, (err, esValida) => {
             if (err || !esValida) {
                 return res.status(400).json({ message: `Error: Failed to log in` });
@@ -87,7 +112,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
                         cambioObj,
-                        { new: true }).populate("proyecto");
+                        { new: true })
                     if (!colaboradorEditado) return res.status(200).json({ message: "The collaborator couldn't be updated" });
                     const colaboradorFinal = formatearColaborador(colaborador)
                     return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
@@ -98,7 +123,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
             const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                 colaborador._id, 
                 cambioObj,
-                { new: true }).populate("proyecto");
+                { new: true })
             if (!colaboradorEditado) return res.status(400).json({ message: "The collaborator has been edited successfully" });
             const colaboradorFinal = formatearColaborador(colaborador)
             return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
@@ -134,7 +159,7 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
         const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
             colaborador._id, 
             { ...cambioObj }
-        ).populate("proyecto");
+        )
         if (!colaboradorEditado) return res.status(400).json({ message: "Error: Couldn't update collaborator" });
         const colaboradorFinal = formatearColaborador(colaborador)
         return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
@@ -149,7 +174,7 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
 
     const { correo, contrasena, nombreProyecto } = req.body
 
-    const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto");
+    const colaborador = await ColaboradorModel.findOne({ cedula });
 
     if (!colaborador) {
         return res.status(400).json({ message: `Error: Collaborator could not be found` });
@@ -171,6 +196,7 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
                 }
                 colaborador.proyecto = proyecto
                 await colaborador.save()
+                await colaborador.populate("proyecto.responsable")
                 return res.status(200).json({ message: `${colaborador.nombre} has been assigned to the proyect ${proyecto.nombre}`});
             }
         })
@@ -189,6 +215,7 @@ export const getColaborador: RequestHandler = async (req:Request, res: Response)
     const cedula = req.params.cedula;
     const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto");
     if (!colaborador) { return res.status(404).json({ message: "Error: Collaborator not found" }) }
+    await colaborador.populate("proyecto.responsable")
     const colaboradorFinal = formatearColaborador(colaborador);
     return res.status(200).json(colaboradorFinal);
 }
