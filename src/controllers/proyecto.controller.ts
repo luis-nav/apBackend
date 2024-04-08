@@ -42,11 +42,20 @@ export const getProyectos: RequestHandler = async (req: Request, res: Response) 
         .populate({ path: "responsable", select: "nombre"})
         .populate("estado")
         .lean().exec();
-    const proyectosFormatted = proyectos.map(proyecto => {
-        proyecto.estado = proyecto.estado.nombre
-        proyecto.responsable = proyecto.responsable.correo
-        return proyecto
-    })
+    const proyectosFormatted = proyectos.map(proyecto => ({
+            _id: proyecto._id,
+            nombre: proyecto.nombre,
+            presupuesto: proyecto.presupuesto,
+            descripcion: proyecto.descripcion,
+            fechaInicio: proyecto.fechaInicio,
+            estado: proyecto.estado.nombre,
+            responsable: proyecto.responsable.correo,
+            reuniones: proyecto.reuniones,
+            tareas: proyecto.tareas,
+            cambios: proyecto.cambios,
+            recursos: proyecto.recursos,
+            fechaFin: proyecto.fechaFinal
+        }))
     return res.status(200).json(proyectosFormatted);
 }
 
@@ -63,7 +72,21 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
     proyecto.colaboradores = colaboradores;
     proyecto.estado = proyecto.estado.nombre;
     proyecto.responsable = proyecto.responsable.correo;
-    return res.status(200).json(proyecto);
+    const proyectoFormatted = {
+        _id: proyecto._id,
+        nombre: proyecto.nombre,
+        presupuesto: proyecto.presupuesto,
+        descripcion: proyecto.descripcion,
+        fechaInicio: proyecto.fechaInicio,
+        estado: proyecto.estado.nombre,
+        responsable: proyecto.responsable.correo,
+        reuniones: proyecto.reuniones,
+        tareas: proyecto.tareas,
+        cambios: proyecto.cambios,
+        recursos: proyecto.recursos,
+        fechaFin: proyecto.fechaFinal
+    }
+    return res.status(200).json(proyectoFormatted);
 }
 
 export const crearProyecto: RequestHandler = async (req: Request, res: Response) => {

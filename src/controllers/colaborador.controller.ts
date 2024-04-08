@@ -83,7 +83,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
                 if (err || !esValida) {
                     return res.status(400).json({ message: `Error: Failed to log in` });
                 } else {
-                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: hashGenerado }).filter(([_, value]) => value !== undefined))
+                    const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: hashGenerado }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null))
                     const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
                         colaborador._id, 
                         cambioObj,
