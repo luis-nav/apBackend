@@ -208,3 +208,9 @@ export const eliminarColaborador: RequestHandler = async (req:Request, res: Resp
         return res.status(400).json({ message: `Error: Couldn't delete collaborator with id ${cedula}` })
     }
 }
+
+export const getColaboradoresDisponibles: RequestHandler = async (req: Request, res: Response) => {
+    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto: null });
+    const colaboradoresFormateados = colaboradores.map(colab => formatearColaborador(colab))
+    return res.status(200).json(colaboradoresFormateados);
+}
