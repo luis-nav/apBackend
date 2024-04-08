@@ -8,7 +8,16 @@ export const getTareas: RequestHandler = async (req: Request, res: Response) => 
     const nombreProyecto = req.params.nombreProyecto;
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("tareas.responsable");
     if (!proyecto) return res.status(400).json({ message: "Error: Project not found"});
-    return res.status(200).json(proyecto.tareas);
+    const tareasFormatted = proyecto.tareas.map(tarea => ({
+        nombre: tarea.nombre,
+        descripcion: tarea.descripcion,
+        storyPoints: tarea.storyPoints,
+        responsable: tarea.responsable.correo,
+        estado: tarea.estado,
+        fechaInicio: tarea.fechaInicio,
+        fechaFinal: tarea.fechaFinal
+    }))
+    return res.status(200).json(tareasFormatted);
 }
 
 // export const getTarea: RequestHandler = async (req: Request, res: Response) => {

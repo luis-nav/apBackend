@@ -10,6 +10,10 @@ const tareaSchema = new mongoose.Schema<Tarea>({
         type: String,
         required: true,
     },
+    descripcion: {
+        type: String,
+        required: true
+    },
     storyPoints: {
         type: Number,
         required: true,
