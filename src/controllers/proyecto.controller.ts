@@ -69,9 +69,6 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         .populate({ path: "reuniones", populate: { path: "colaboradores" } });
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
     const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
-    proyecto.colaboradores = colaboradores;
-    proyecto.estado = proyecto.estado.nombre;
-    proyecto.responsable = proyecto.responsable.correo;
     const proyectoFormatted = {
         _id: proyecto._id,
         nombre: proyecto.nombre,
@@ -84,7 +81,8 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         tareas: proyecto.tareas,
         cambios: proyecto.cambios,
         recursos: proyecto.recursos,
-        fechaFin: proyecto.fechaFinal
+        fechaFin: proyecto.fechaFinal,
+        colaboradores
     }
     return res.status(200).json(proyectoFormatted);
 }
