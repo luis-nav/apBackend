@@ -24,9 +24,9 @@ export const addRecurso: RequestHandler = async (req: Request, res: Response) =>
 
 export const removeRecurso: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
-    const { nombre } = req.body
+    const nombreRecurso = req.params.nombreRecurso;
     try {
-        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $pull: { recursos: { nombre } }}).populate("tareas.responsable", ["nombre"]);
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $pull: { recursos: { nombreRecurso } }}).populate("tareas.responsable", ["nombre"]);
         if (!proyecto) return res.status(400).json({ message: "Error: Failed to delete project resource"});
         return res.status(201).json({ message: "Resource deleted!", proyecto});  
     } catch (error) {
