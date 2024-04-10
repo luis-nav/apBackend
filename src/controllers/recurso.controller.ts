@@ -11,7 +11,8 @@ export const getRecursos: RequestHandler = async (req: Request, res: Response) =
 
 export const addRecurso: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
-    const recurso = req.body;
+    const { name, description, type } = req.body;
+    const recurso = { nombre: name, descripcion: description, tipo: type };
     try {
         const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $push: { recursos: recurso }}).populate("tareas.responsable", ["nombre"]);
         if (!proyecto) return res.status(400).json({ message: "Error: Project not found "});
