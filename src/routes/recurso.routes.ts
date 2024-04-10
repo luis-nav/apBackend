@@ -8,6 +8,6 @@ router.get("/:nombreProyecto/recursos", getRecursos);
 
 router.post("/:nombreProyecto/recursos", addRecurso);
 
-router.delete("/:nombreProyecto/recursos", removeRecurso);
+router.patch("/:nombreProyecto/recursos", removeRecurso);
 
 export default router;
