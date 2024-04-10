@@ -125,10 +125,15 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
-            cambios.cambioObj
+            { 
+                ...cambios.cambioObj, 
+                $push: { cambios: { 
+                    titulo: "Cambios detalles del proyecto",
+                    descripcion: cambios.cambioString,
+                    aprobadoPor: null 
+                } }}
         );
         if (!nuevoProyecto) return res.status(400).json({message: "Error: The project could not be found"});
-        await nuevoProyecto.save();
 
         await enviarCambiosColaboradores(cambios.cambioString, nuevoProyecto);
     
