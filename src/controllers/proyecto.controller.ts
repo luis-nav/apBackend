@@ -89,7 +89,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
 }
 
 export const crearProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const { nombre, presupuesto, descripcion, fechaInicio, correoResponsable } = req.body;
+    const { nombre, presupuesto, descripcion, fechaInicio, correoResponsable, fechaFinal } = req.body;
     const estado = "Active";
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (responsable === null) {
@@ -102,7 +102,8 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
             descripcion,
             estado,
             responsable,
-            fechaInicio
+            fechaInicio,
+            fechaFinal
         });
         await proyecto.save();
         responsable.proyecto = proyecto;
