@@ -125,7 +125,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
-            { ...cambios.cambioObj }
+            cambios.cambioObj
         );
         if (!nuevoProyecto) return res.status(400).json({message: "Error: The project could not be found"});
         await nuevoProyecto.save();
@@ -134,7 +134,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
     
         return res.status(200).json({ message: `The project has been updated ${nuevoProyecto.nombre}` });
     } catch (error) {
-        return res.status(400).json({ message: `Error: Could not edit project: ${error}`})
+        return res.status(400).json({ message: `${error}`})
     }
 }
 
