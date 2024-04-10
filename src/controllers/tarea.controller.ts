@@ -77,7 +77,7 @@ export const eliminarTarea: RequestHandler = async (req: Request, res: Response)
     const nombre = req.params.nombre
 
     try {
-        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $pull: { tareas: { nombre } }}).populate("tareas.responsable", ["nombre"]).populate("tareas.estado");
+        const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $pull: { tareas: { nombre } }}).populate("tareas.responsable", ["nombre"]);
         if (!proyecto) return res.status(400).json({ message: "Error: Failed to delete project task"});
         return res.status(201).json({ message: "Task deleted!", proyecto});  
     } catch (error) {
