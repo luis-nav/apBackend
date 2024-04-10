@@ -166,17 +166,28 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
 export const addColab: RequestHandler = async (req: Request, res: Response) => {
     const nombre = req.params.nombre;
     const { nombreColab } = req.body;
+    
+    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+
+    if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
+
+    if (nombre === "Free") {
+        try {
+            const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto: null });
+            if (!update) { return res.status(400).json({ message: "Error: Couldn't asign project" }) }
+            return res.status(200).json({ message: `The collaborator ${update.nombre} is now free` });
+        } catch (error) {
+            return res.status(400).json({ message: `Error: Couldn't free collaborator: ${error}` });
+        }
+    }
 
     const proyecto = await ProyectoModel.findOne({ nombre });
 
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
 
-    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
-
-    if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
-
     if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an assigned proyect"})}
 
+    
     try {
         const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto });
         if (!update) { return res.status(400).json({ message: "Error: Couldn't asign project" }) }
