@@ -6,16 +6,9 @@ import { ProyectoModel } from "../models/proyecto.model";
 
 export const getReuniones: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.nombreProyecto;
-    const proyecto = await ProyectoModel.findOne({ nombreProyecto })
-    if (proyecto === null) {
-        return res.status(404).json({ message: "Error: Project not found" });
-    }
-    else {
-        const reuniones = await ProyectoModel.find({ nombreProyecto })
-        .populate({ path: "reuniones"})
-        .lean().exec();
-        return res.status(200).json(reuniones);
-    }
+    const proyecto = await ProyectoModel.findOne({ nombreProyecto }).populate("reuniones")
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    return res.status(200).json(proyecto.reuniones);
 }
 
 export const crearReunion: RequestHandler = async (req: Request, res: Response) => {
