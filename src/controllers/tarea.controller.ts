@@ -3,6 +3,7 @@ import { Request, Response, RequestHandler } from "express";
 import { ColaboradorModel } from "../models/colaborador.model";
 import { EstadoTareaModel } from "../models/estadoTarea.model";
 import { ProyectoModel } from "../models/proyecto.model";
+import { enviarAvisoTarea } from "../utils/mail.functions";
 
 export const getTareas: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
@@ -45,6 +46,7 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
     try {
         const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $push: { tareas: tarea }}).populate("tareas.responsable", ["nombre"]).populate("tareas.estado");
         if (!proyecto) return res.status(400).json({ message: "Error: Project not found "});
+        await enviarAvisoTarea(responsable, proyecto);
         return res.status(201).json({ message: "Task created!", proyecto});  
     } catch (error) {
         return res.status(400).json({ message: `Error: The task could not be created: ${error}` });;

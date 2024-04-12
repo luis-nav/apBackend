@@ -3,6 +3,7 @@ import { Request, Response, RequestHandler } from "express";
 import { ReunionModel } from "../models/reunion.model";
 import { ColaboradorModel } from "../models/colaborador.model";
 import { ProyectoModel } from "../models/proyecto.model";
+import { enviarAvisoReunion } from "../utils/mail.functions";
 
 export const getReuniones: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.nombreProyecto;
@@ -72,6 +73,7 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
     try {
         reunion.colaboradores.push(colab.id);
         await reunion.save();
+        await enviarAvisoReunion(reunion.temaReunion, reunion.fecha, colab);
         return res.status(200).json({ message: `The collaborator ${colab.nombre} was added to the meeting` });
     } catch (error) {
         return res.status(400).json({ message: `Error: Couldn't add the collaborator to the meeting: ${error}` });
