@@ -4,6 +4,6 @@ export interface Reunion {
     fecha: Date,
     temaReunion: string,
     medioReunion: string,
-    formatoInvitacion: string,
-    colaboradores: ObjectId[],
+    descripcion: string,
+    colaboradores: any[],
 }

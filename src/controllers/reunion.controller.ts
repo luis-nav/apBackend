@@ -20,37 +20,24 @@ export const getReuniones: RequestHandler = async (req: Request, res: Response) 
 
 export const crearReunion: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.nombreProyecto;
-    const { fecha, temaReunion, medioReunion, formatoInvitacion, colaboradores } = req.body;
+    const { fecha, temaReunion, medioReunion, descripcion } = req.body;
     const proyecto = await ProyectoModel.findOne({ nombreProyecto });
-    if (proyecto === null) {
-        return res.status(404).json({ message: "Error: Project not found" });
-    }
-    else {
-        let empleados: any[] = []
-
-        colaboradores.array.forEach((nombre: string) => {
-            const colab = ColaboradorModel.findOne({ nombre: nombre });
-            if (colab === null) {
-                return res.status(404).json({ message: `Error: ${nombre} is not a registered collaborator`})
-            };
-            empleados.push(colab)
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    try {
+        const reunion = new ReunionModel({
+            fecha, 
+            temaReunion, 
+            medioReunion, 
+            descripcion
         });
-        try {
-            const reunion = new ReunionModel({
-                fecha, 
-                temaReunion, 
-                medioReunion, 
-                formatoInvitacion, 
-                empleados
-            });
-            await reunion.save();
-            proyecto?.reuniones.push(reunion.id);
-            await proyecto?.save();
-            return res.status(201).json({ message: "Meeting created!"});  
-        } catch (error) {
-            return res.status(400).json({ message: `Error: Could not create meeting: ${error}` });;
-        }
+        await reunion.save();
+        proyecto?.reuniones.push(reunion.id);
+        await proyecto?.save();
+        return res.status(201).json({ message: "Meeting created!"});  
+    } catch (error) {
+        return res.status(400).json({ message: `Error: Could not create meeting: ${error}` });;
     }
+
 }
 
 export const eliminarReunion: RequestHandler = async (req:Request, res:Response) => {
@@ -75,13 +62,13 @@ export const eliminarReunion: RequestHandler = async (req:Request, res:Response)
 
 export const addColab: RequestHandler = async (req: Request, res: Response) => {
     const nombre = req.params.nombre;
-    const { nombreColab, temaReunion, fecha } = req.body;
+    const { correoColab, temaReunion, fecha } = req.body;
 
     const proyecto = await ProyectoModel.findOne({ nombre });
 
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
 
-    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+    const colab = await ColaboradorModel.findOne({ correo: correoColab });
 
     if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
 

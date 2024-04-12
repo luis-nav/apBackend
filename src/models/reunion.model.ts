@@ -15,7 +15,7 @@ const reunionSchema = new Schema<Reunion>({
         type: String,
         required: true,
     },
-    formatoInvitacion: {
+    descripcion: {
         type: String,
         required: true,
     },
