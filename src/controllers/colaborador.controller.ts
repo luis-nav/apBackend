@@ -63,8 +63,9 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
         if (colaborador.proyecto) { await colaborador.populate("proyecto.responsable") }
         const colaboradorFinal = formatearColaborador(colaborador);
         return res.status(201).json({ message: "Collaborator successfully created", colaboradorFinal});
-    } catch (error) {
-        return res.status(400).json({ message: `Error: Collaborator could not be created: ${error}`});
+    } catch (error:any) {
+        if (error.code === 11000) return res.status(400).json({ message: `Error: Collaborator could not be created, ${correo} or ${cedula} are already registered as other collaborators email or id`});
+        else return res.status(400).json({ message: `Error: Collaborator could not be created: ${error}`});
     }
 }
 
@@ -128,8 +129,9 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
             const colaboradorFinal = formatearColaborador(colaborador)
             return res.status(200).json({ message: "The collaborator has been edited successfully", colaboradorFinal });
         }
-    } catch (error) {
-        return res.status(400).json({ message: `Error: The collaborator could not be modified: ${error}` });
+    } catch (error:any) {
+        if (error.code === 11000) return res.status(400).json({ message: `Error: Collaborator could not be modified, ${correo} is already registered as other collaborators email`});
+        else return res.status(400).json({ message: `Error: The collaborator could not be modified: ${error}` });
     }
 }
 
@@ -164,8 +166,9 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
         const colaboradorFinal = formatearColaborador(colaborador)
         return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
         
-    } catch (error) {
-        return res.status(400).json({ message: `Error: Couldn't update collaborator: ${error}` });
+    } catch (error:any) {
+        if (error.code === 11000) return res.status(400).json({ message: `Error: Collaborator could not be created, ${correo} is already registered as other collaborators email`});
+        else return res.status(400).json({ message: `Error: Couldn't update collaborator: ${error}` });
     }
 }
 
