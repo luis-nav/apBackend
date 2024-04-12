@@ -54,14 +54,14 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
 }
 
 export const eliminarReunion: RequestHandler = async (req:Request, res:Response) => {
-    const nombre  = req.params.nombre;
-    const { fecha, temaReunion } = req.body;
+    const temaReunion = req.params.temaReunion;
+    const nombre = req.params.nombre;
     const proyecto = await ProyectoModel.findOne({ nombre });
     if (proyecto === null) {
         return res.status(404).json({ message: "Error: Project not found" });
     }
     else {
-        const reunion = proyecto.reuniones.findIndex((fecha, temaReunion) => (fecha === fecha && temaReunion === temaReunion));
+        const reunion = proyecto.reuniones.findIndex(temaReunion => temaReunion === temaReunion);
         try {
             proyecto.reuniones.splice(reunion, 1);
             await ReunionModel.findOneAndDelete({ reunion });

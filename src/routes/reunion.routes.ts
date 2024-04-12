@@ -7,7 +7,7 @@ router.get("/:nombre", getReuniones);
 
 router.post("/", crearReunion);
 
-router.delete("/:nombre", eliminarReunion);
+router.delete("/:proyecto/:temaReunion", eliminarReunion);
 
 router.post("/:proyecto/colab", addColab);
 
