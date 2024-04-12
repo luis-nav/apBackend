@@ -21,7 +21,7 @@ router.delete("/:nombre", eliminarProyecto);
 
 router.post("/:nombre/colab", addColab);
 
-router.delete("/:nombre/colab", removeColab);
+router.delete("/:nombreProyecto/colab/:correoColab", removeColab);
 
 router.get("/:nombre/colab", getColabs)
 

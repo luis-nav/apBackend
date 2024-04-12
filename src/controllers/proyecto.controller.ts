@@ -203,19 +203,19 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
 }
 
 export const removeColab: RequestHandler = async (req: Request, res: Response) => {
-    const nombre = req.params.nombre;
-    const { nombreColab } = req.body;
+    const nombre = req.params.nombreProyecto;
+    const correo = req.params.correoColab
 
     const proyecto = await ProyectoModel.findOne({ nombre });
 
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
 
-    const colab = await ColaboradorModel.findOne({ nombre: nombreColab });
+    const colab = await ColaboradorModel.findOne({ correo });
 
     if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
 
     try {
-        const update = await ColaboradorModel.findOneAndUpdate({ nombre: nombreColab }, { proyecto: null });
+        const update = await ColaboradorModel.findOneAndUpdate({ correo }, { proyecto: null });
         if (!update) { return res.status(400).json({ message: "Error: Couldn't remove collaborator from project" }) }
         return res.status(200).json({ message: `The collaborator ${update.nombre} has been successfully removed from the project ${proyecto.nombre}` });
     } catch (error) {
