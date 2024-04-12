@@ -120,7 +120,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
 
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     const cambios = definirCambios( { nombre, presupuesto, descripcion, fechaFinal, estado }, responsable);
-    const cambiosObj = Object.fromEntries(Object.entries(cambios.cambioObj).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
+    const cambiosObj = Object.fromEntries(Object.entries({ nombre, presupuesto, descripcion, fechaFinal, estado, responsable }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
     try {
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
