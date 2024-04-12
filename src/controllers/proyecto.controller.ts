@@ -120,16 +120,16 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
 
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     const cambios = definirCambios( { nombre, presupuesto, descripcion, fechaFinal, estado }, responsable);
-
+    const cambiosObj = Object.fromEntries(Object.entries(cambios.cambioObj).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
     try {
         const descripcionDeCambios = `Changes: ${cambios.cambioString}` 
         const nuevoProyecto = await ProyectoModel.findOneAndUpdate(
             { nombre: nombrePorBuscar }, 
             { 
-                ...cambios.cambioObj, 
+                ...cambiosObj, 
                 $push: { cambios: { 
-                    titulo: "Cambios detalles del proyecto",
-                    descripcion: cambios.cambioString,
+                    titulo: "General changes to proyecto",
+                    descripcion: descripcionDeCambios,
                     aprobadoPor: null 
                 } }}
         );
@@ -137,7 +137,7 @@ export const actualizarProyecto: RequestHandler = async (req: Request, res: Resp
 
         await enviarCambiosColaboradores(cambios.cambioString, nuevoProyecto);
     
-        return res.status(200).json({ message: `The project has been updated ${nuevoProyecto.nombre}` });
+        return res.status(200).json({ message: `The project ${nuevoProyecto.nombre} has been updated` });
     } catch (error) {
         return res.status(400).json({ message: `${error}`})
     }
