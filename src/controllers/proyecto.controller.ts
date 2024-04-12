@@ -227,6 +227,6 @@ export const getColabs: RequestHandler = async (req: Request, res: Response) => 
     const nombre  = req.params.nombre;
     const proyecto = await ProyectoModel.findOne({ nombre });
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
-    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto });
+    const colaboradores = await ColaboradorModel.find({ proyecto });
     return res.status(200).json(colaboradores)
 }
