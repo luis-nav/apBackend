@@ -36,7 +36,7 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
     const nombreProyecto = req.params.nombreProyecto;
     const { nombre, descripcion, storyPoints, correoResponsable } = req.body;
 
-    const estado = "To do";
+    const estado = "Todo";
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
