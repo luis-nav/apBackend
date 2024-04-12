@@ -34,10 +34,10 @@ export const getTareas: RequestHandler = async (req: Request, res: Response) => 
 
 export const crearTarea: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
-    const { nombre, descripcion, storyPoints, nombreResponsable } = req.body;
+    const { nombre, descripcion, storyPoints, correoResponsable } = req.body;
 
     const estado = "To do";
-    const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (responsable === null) {
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
     }
@@ -54,10 +54,10 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
 export const actualizarTarea: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto = req.params.nombreProyecto;
     const nombre = req.params.nombre
-    const { nombreNuevo, storyPoints, nombreResponsable, estadoTarea, descripcion } = req.body;
+    const { nombreNuevo, storyPoints, correoResponsable, estadoTarea, descripcion } = req.body;
     let fechaFinal = null
     if (estadoTarea === "Done") { fechaFinal = Date.now() }
-    const responsable = await ColaboradorModel.findOne({ nombre: nombreResponsable });
+    const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
     const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estadoTarea, fechaFinal, descripcion }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
     
