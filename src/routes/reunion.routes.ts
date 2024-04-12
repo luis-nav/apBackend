@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/:nombre", getReuniones);
 
-router.post("/", crearReunion);
+router.post("/:nombreProyecto", crearReunion);
 
 router.delete("/:proyecto/:temaReunion", eliminarReunion);
 
