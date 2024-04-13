@@ -73,7 +73,7 @@ const recursoSchema = new mongoose.Schema<Recurso>({
     }
 });
 
-const proyectSchema = new mongoose.Schema<Proyecto>({
+const proyectSchema = new mongoose.Schema({
     nombre: {
         type: String,
         required: true,
