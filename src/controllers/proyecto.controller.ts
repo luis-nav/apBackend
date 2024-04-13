@@ -175,9 +175,10 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
 export const addColab: RequestHandler = async (req: Request, res: Response) => {
     const nombre = req.params.nombre;
     const { correoColab } = req.body;
+
     
     const colab = await ColaboradorModel.findOne({ correo: correoColab });
-
+     
     if (!colab) { return res.status(404).json({ message: "Error: Collaborator not found" })}
 
     if (nombre === "Free") {
@@ -191,14 +192,15 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
     }
     
     const proyecto = await ProyectoModel.findOne({ nombre });
-    
+
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
     
     if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an assigned proyect"})}
     
     
     try {
-        const update = await ColaboradorModel.findOneAndUpdate({ correro: correoColab }, { proyecto });
+        
+        const update = await ColaboradorModel.findOneAndUpdate({ correo: correoColab }, { proyecto });
         if (!update) { return res.status(400).json({ message: "Error: Couldn't asign project" }) }
         await enviarAsignacionProyecto(update, proyecto);
         return res.status(200).json({ message: `The project was asigned to the collaborator ${update.nombre}` });
