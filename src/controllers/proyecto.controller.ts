@@ -110,7 +110,7 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
         await responsable.save();
         return res.status(201).json({ message: "Project created!"});  
     } catch (error:any) {
-        if (error.code === 11000) return res.status(400).json({ message: `Error: Could not create project, there is already a project with the name ${nombre}`});
+        if (error.code === 11000) return res.status(400).json({ message: `Error: There is already a project with the name ${nombre}`});
         else return res.status(400).json({ message: `Error: Could not create project: ${error}` });;
     }
 }
