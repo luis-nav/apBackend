@@ -43,6 +43,9 @@ export const crearTarea: RequestHandler = async (req: Request, res: Response) =>
         return res.status(404).json({ message: "Error: The name of the person responsible is not valid"})
     }
     const tarea = { nombre, descripcion, storyPoints, responsable, estado };
+    if (!nombre) { return res.status(400).json({ message: "Error: Name can't be null" }) }
+    if (!descripcion) { return res.status(400).json({ message: "Error: Description can't be null" }) }
+    if (!storyPoints) { return res.status(400).json({ message: "Error: Story Points can't be null" }) }
     try {
         const proyecto = await ProyectoModel.findOneAndUpdate({ nombre: nombreProyecto }, { $push: { tareas: tarea }}).populate("tareas.responsable", ["nombre"]).populate("tareas.estado");
         if (!proyecto) return res.status(400).json({ message: "Error: Project not found "});
