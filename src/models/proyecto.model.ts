@@ -96,7 +96,8 @@ const proyectSchema = new mongoose.Schema<Proyecto>({
         required: true,
     },
     fechaFinal: {
-        type: Date
+        type: Date,
+        required: true,
     },
     responsable: {
         type: mongoose.Schema.Types.ObjectId,

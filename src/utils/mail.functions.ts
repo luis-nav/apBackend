@@ -25,8 +25,9 @@ export const enviarAvisoTarea = async (colaborador: Colaborador, proyecto: any) 
     })
 }
 
-export const enviarAvisoReunion = async (temaReunion: string, fecha: any, colaborador: Colaborador) => {
-    const res = await emailService.sendEmail({
+export const enviarAvisoReunion = async (temaReunion: string, fecha: any, proyecto: any) => {
+    const colaboradores = await ColaboradorModel.find({ proyecto });
+    colaboradores.forEach(async (colaborador) => await emailService.sendEmail({
         from: process.env.EMAIL_USER,
         to: colaborador.correo,
         subject: `You've been added to a meeting about ${temaReunion}`,
@@ -34,5 +35,16 @@ export const enviarAvisoReunion = async (temaReunion: string, fecha: any, colabo
         You have a new meeting on ${fecha} about ${temaReunion}.\n\n
         You better attend to the meting!
         `,
+    }));
+}
+
+export const enviarAsignacionProyecto = async (colaborador: Colaborador, proyecto:any) => {
+    await emailService.sendEmail({
+        from: process.env.EMAIL_USER,
+        to: colaborador.correo,
+        subject: `New project assigned : ${proyecto.nombre}`,
+        text: `Hey ${colaborador.nombre}!\n\n 
+        A new project has been assigned to you.\n
+        Check the app to see more details.`
     })
 }

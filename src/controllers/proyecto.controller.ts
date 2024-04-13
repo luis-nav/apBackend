@@ -4,7 +4,7 @@ import { ObjectId } from "mongoose";
 import { ProyectoModel } from "../models/proyecto.model";
 import { EstadoTareaModel } from '../models/estadoTarea.model';
 import { ColaboradorModel } from "../models/colaborador.model";
-import { enviarCambiosColaboradores } from "../utils/mail.functions";
+import { enviarAsignacionProyecto, enviarCambiosColaboradores } from "../utils/mail.functions";
 
 
 const definirCambios = (cambiosProyecto: any, responsable: any) => {
@@ -186,17 +186,18 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
             return res.status(400).json({ message: `Error: Couldn't free collaborator: ${error}` });
         }
     }
-
+    
     const proyecto = await ProyectoModel.findOne({ nombre });
-
+    
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" })}
-
+    
     if (colab.proyecto) { return res.status(400).json({ message: "Error: Collaborator already has an assigned proyect"})}
-
+    
     
     try {
         const update = await ColaboradorModel.findOneAndUpdate({ correro: correoColab }, { proyecto });
         if (!update) { return res.status(400).json({ message: "Error: Couldn't asign project" }) }
+        await enviarAsignacionProyecto(update, proyecto);
         return res.status(200).json({ message: `The project was asigned to the collaborator ${update.nombre}` });
     } catch (error) {
         return res.status(400).json({ message: `Error: Couldn't asign project: ${error}` });
