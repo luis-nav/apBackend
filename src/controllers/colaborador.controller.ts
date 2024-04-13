@@ -193,8 +193,8 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
             if (err || !esValida) {
                 return res.status(400).json({ message: `Error: Failed to verify administrator` });
             }  else {
-                const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
-                if (!proyecto) {
+                let proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
+                if (!proyecto || proyecto.nombre !== "Free") {
                     return res.status(400).json({ message: "Error: Couldn't find project" })
                 }
                 colaborador.proyecto = proyecto

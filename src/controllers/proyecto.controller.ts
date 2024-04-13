@@ -161,8 +161,10 @@ export const actualizarEstadoProyecto: RequestHandler = async (req: Request, res
 
 export const eliminarProyecto: RequestHandler = async (req:Request, res:Response) => {
     const nombre  = req.params.nombre;
-    
+    const proyecto = await ProyectoModel.findOne({ nombre });
     try {
+
+        await ColaboradorModel.updateMany({ proyecto }, { proyecto: null })
         await ProyectoModel.findOneAndDelete({ nombre });
         return res.status(200).json({ message: "The project has been deleted successfully" });
     } catch (error) {
