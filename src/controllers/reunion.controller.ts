@@ -25,7 +25,7 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
             descripcion
         });
         await reunion.save();
-        proyecto?.reuniones.push(reunion.id);
+        // proyecto.reuniones.push(reunion);
         await proyecto?.save();
         await enviarAvisoReunion(reunion.temaReunion, fecha, proyecto);
         return res.status(201).json({ message: "Meeting created!"});  
