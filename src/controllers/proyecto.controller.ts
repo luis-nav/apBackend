@@ -108,6 +108,7 @@ export const crearProyecto: RequestHandler = async (req: Request, res: Response)
         await proyecto.save();
         responsable.proyecto = proyecto;
         await responsable.save();
+        await enviarAsignacionProyecto(responsable, proyecto);
         return res.status(201).json({ message: "Project created!"});  
     } catch (error:any) {
         if (error.code === 11000) return res.status(400).json({ message: `Error: Could not create project, there is already a project with the name ${nombre}`});
