@@ -9,15 +9,18 @@ export const getTareas: RequestHandler = async (req: Request, res: Response) => 
     const nombreProyecto = req.params.nombreProyecto;
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("tareas.responsable");
     if (!proyecto) return res.status(400).json({ message: "Error: Project not found"});
-    const tareasFormatted = proyecto.tareas.map(tarea => ({
-        nombre: tarea.nombre,
-        descripcion: tarea.descripcion,
-        storyPoints: tarea.storyPoints,
-        responsable: tarea.responsable.correo,
-        estado: tarea.estado,
-        fechaInicio: tarea.fechaInicio,
-        fechaFinal: tarea.fechaFinal
-    }))
+    const tareasFormatted = proyecto.tareas.map(tarea => {
+        const tareaFormatted = {
+            nombre: tarea.nombre,
+            descripcion: tarea.descripcion,
+            storyPoints: tarea.storyPoints,
+            responsable: tarea.responsable.correo,
+            estado: tarea.estado,
+            fechaInicio: tarea.fechaInicio,
+            fechaFinal: tarea.fechaFinal
+        }
+        return tareaFormatted
+    })
     return res.status(200).json(tareasFormatted);
 }
 
@@ -64,8 +67,8 @@ export const actualizarTarea: RequestHandler = async (req: Request, res: Respons
     if (estadoTarea === "Done") { fechaFinal = Date.now() }
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
     if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
-    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estadoTarea, fechaFinal, descripcion }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
-    
+    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado: estadoTarea, fechaFinal, descripcion }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
+    console.log(tarea);
     try {
         const update = await ProyectoModel.updateOne(
             { nombre: nombreProyecto, "tareas.nombre": nombre }, 
