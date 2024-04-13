@@ -27,6 +27,7 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
         await reunion.save();
         proyecto?.reuniones.push(reunion.id);
         await proyecto?.save();
+        await enviarAvisoReunion(reunion.temaReunion, fecha, proyecto);
         return res.status(201).json({ message: "Meeting created!"});  
     } catch (error) {
         return res.status(400).json({ message: `Error: Could not create meeting: ${error}` });;
@@ -73,7 +74,6 @@ export const addColab: RequestHandler = async (req: Request, res: Response) => {
     try {
         reunion.colaboradores.push(colab.id);
         await reunion.save();
-        await enviarAvisoReunion(reunion.temaReunion, reunion.fecha, colab);
         return res.status(200).json({ message: `The collaborator ${colab.nombre} was added to the meeting` });
     } catch (error) {
         return res.status(400).json({ message: `Error: Couldn't add the collaborator to the meeting: ${error}` });
