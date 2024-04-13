@@ -199,7 +199,7 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
                 }
                 colaborador.proyecto = proyecto
                 await colaborador.save()
-                await colaborador.populate("proyecto.responsable")
+                if (proyecto) { await colaborador.populate("proyecto.responsable") }
                 return res.status(200).json({ message: `${colaborador.nombre} has been assigned to the proyect ${proyecto.nombre}`});
             }
         })
