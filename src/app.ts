@@ -3,7 +3,6 @@ import express, { Express, Request, Response } from "express";
 
 // Cross Origin Policy
 import cors from "cors";
-import { corsOptions } from "./cors.config";
 
 // API Router
 import apiRouter from "./routes/api.routes"
@@ -12,7 +11,7 @@ const app: Express = express();
 
 app.use(express.json());
 
-apiRouter.use(cors(corsOptions));
+apiRouter.use(cors());
 
 app.use("/api", apiRouter);
 
