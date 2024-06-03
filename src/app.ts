@@ -11,7 +11,7 @@ const app: Express = express();
 
 app.use(express.json());
 
-apiRouter.use(cors());
+app.use(cors());
 
 app.use("/api", apiRouter);
 
