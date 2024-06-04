@@ -209,7 +209,7 @@ export const asignarProyecto: RequestHandler = async (req:Request, res: Response
 }
 
 export const getAllColaboradores: RequestHandler = async (req:Request, res: Response) => {
-    const colaboradores = await ColaboradorModel.find({ admin: false });
+    const colaboradores = await ColaboradorModel.find({ admin: false }).populate('proyecto');
     const colaboradoresFormateados = colaboradores.map(colab => formatearColaborador(colab))
     return res.status(200).json(colaboradoresFormateados);
 }
