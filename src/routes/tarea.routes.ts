@@ -10,8 +10,8 @@ router.get("/:nombreProyecto/tareas", getTareas);
 
 router.post("/:nombreProyecto/tareas", crearTarea);
 
-router.put("/:nombreProyecto/tareas/:nombre", actualizarTarea);
+router.put("/:nombreProyecto/tareas/:id", actualizarTarea);
 
-router.delete("/:nombreProyecto/tareas/:nombre", eliminarTarea)
+router.delete("/:nombreProyecto/tareas/:id", eliminarTarea)
 
 export default router;
