@@ -68,17 +68,28 @@ export const actualizarTarea: RequestHandler = async (req: Request, res: Respons
     let fechaFinal = null
     if (estadoTarea === "Done") { fechaFinal = Date.now() }
     const responsable = await ColaboradorModel.findOne({ correo: correoResponsable });
-    if (!responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
-    const tarea = Object.fromEntries(Object.entries({ nombre: nombreNuevo, storyPoints, responsable, estado: estadoTarea, fechaFinal, descripcion }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""));
-    console.log(tarea);
+    if (correoResponsable && !responsable) { return res.status(404).json({ message: "Error: The name of the person responsible is not valid" }) }
+
+    // Crear un objeto con los valores que no sean undefined o null
+    const tarea = Object.fromEntries(
+        Object.entries({
+            "tareas.$.nombre": nombreNuevo,
+            "tareas.$.storyPoints": storyPoints,
+            "tareas.$.responsable": responsable,
+            "tareas.$.estado": estadoTarea,
+            "tareas.$.fechaFinal": fechaFinal,
+            "tareas.$.descripcion": descripcion
+        }).filter(([_, value]) => value !== undefined && value !== null)
+    );
+
     try {
         const update = await ProyectoModel.updateOne(
             { nombre: nombreProyecto, "tareas._id": id },
-            { $set: { "tareas.$": tarea } });
+            { $set: tarea });
         if (!update) return res.status(400).json({ message: "Error: Failed to update task"});
         const proyecto = await ProyectoModel.findOne( {nombre: nombreProyecto })
-        .populate("tareas.responsable", ["nombre"])
-        return res.status(201).json({ message: "Task created!", proyecto});  
+            .populate("tareas.responsable", ["nombre"])
+        return res.status(201).json({ message: "Task modified!", proyecto});
     } catch (error) {
         return res.status(400).json({ message: `Error: Failed to update task: ${error}` });;
     }
