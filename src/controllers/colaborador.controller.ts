@@ -28,7 +28,8 @@ const formatearColaborador = (colaborador:any) => {
             departamento: colaborador.departamento,
             telefono: colaborador.telefono,
             proyecto,
-            admin: colaborador.admin
+            admin: colaborador.admin,
+            estado: colaborador.estado
         }
         return colab
     }
@@ -47,6 +48,7 @@ const formatearColaborador = (colaborador:any) => {
 export const registrarColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { cedula, nombre, correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
     const correoRegex = new RegExp(".*@estudiantec\.cr")
+    const estado = true;
     if (!correo || !correoRegex.test(correo) ) { return res.status(400).json({ message: "Error: The email is not valid" }) }
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
@@ -58,6 +60,7 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
             telefono,
             contrasena,
             proyecto: proyecto ? proyecto : null,
+            estado
         });
         await colaborador.save();
         if (colaborador.proyecto) { await colaborador.populate("proyecto.responsable") }
@@ -72,7 +75,7 @@ export const registrarColaborador:RequestHandler = async (req: Request, res: Res
 export const logearColaborador:RequestHandler = async (req: Request, res: Response) => {
     const { correo, contrasena } = req.body;
     try {
-        const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto")
+        const colaborador = await ColaboradorModel.findOne({ correo, estado: true }).populate("proyecto")
         if (!colaborador || !colaborador.validarContrasena) throw Error("Login Error")
         if (colaborador.proyecto) { await colaborador.populate("proyecto.responsable") }
         colaborador.validarContrasena(contrasena, (err, esValida) => {
@@ -137,7 +140,7 @@ export const modificarColaborador:RequestHandler = async (req:Request, res: Resp
 
 export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula
-    const { correo, departamento, telefono, contrasena, nombreProyecto } = req.body;
+    const { nombre, nuevaCedula, correo, departamento, telefono, contrasena, nombreProyecto, estado } = req.body;
 
     const correoRegex = new RegExp(".*@estudiantec\.cr")
 
@@ -157,7 +160,7 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
     
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     try {
-        const cambioObj = Object.fromEntries(Object.entries({ correo, departamento, telefono, contrasena: (contrasena ? hashGenerado : undefined), proyecto }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
+        const cambioObj = Object.fromEntries(Object.entries({ nombre, cedula: nuevaCedula, correo, departamento, telefono, contrasena: (contrasena ? hashGenerado : undefined), proyecto, estado }).filter(([_, value]) => value !== undefined).filter(([_, value]) => value !== null).filter(([_, value]) => value !== ""))
         const colaboradorEditado = await ColaboradorModel.findByIdAndUpdate(
             colaborador._id, 
             { ...cambioObj }
@@ -167,7 +170,7 @@ export const modificarColaboradorAdmin:RequestHandler = async (req:Request, res:
         return res.status(200).json({ message: "The collaborator has been updated!", colaboradorFinal });
         
     } catch (error:any) {
-        if (error.code === 11000) return res.status(400).json({ message: `Error: ${correo} is already registered as other collaborators email`});
+        if (error.code === 11000) return res.status(400).json({ message: `Error: ${correo} is already registered as other collaborators`});
         else return res.status(400).json({ message: `Error: Couldn't update collaborator: ${error}` });
     }
 }
@@ -223,24 +226,8 @@ export const getColaborador: RequestHandler = async (req:Request, res: Response)
     return res.status(200).json(colaboradorFinal);
 }
 
-export const eliminarColaborador: RequestHandler = async (req:Request, res: Response) => {
-    const cedula = req.params.cedula;
-    const colaborador = await ColaboradorModel.findOne({ cedula });
-    if (!colaborador) { return res.status(404).json({ message: `Error: Couldn't find collaborator with id ${cedula}`})}
-    const proyectoACargo = await ProyectoModel.findOne({ responsable: colaborador });
-
-    if (proyectoACargo) { return res.status(400).json({ message: `Error: Can't delete collaborator ${colaborador.nombre} because they are responsible for the project ${proyectoACargo.nombre}` })}
-
-    try {
-        const eliminacion = await ColaboradorModel.findOneAndDelete({ cedula });
-        return res.status(200).json({ message: `${colaborador.nombre} has been eliminated from the system!`})
-    } catch (error) {
-        return res.status(400).json({ message: `Error: Couldn't delete collaborator with id ${cedula}` })
-    }
-}
-
 export const getColaboradoresDisponibles: RequestHandler = async (req: Request, res: Response) => {
-    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto: null });
+    const colaboradores = await ColaboradorModel.find({ admin: false, proyecto: null, estado: true });
     const colaboradoresFormateados = colaboradores.map(colab => formatearColaborador(colab))
     return res.status(200).json(colaboradoresFormateados);
 }

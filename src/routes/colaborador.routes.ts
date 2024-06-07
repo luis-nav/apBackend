@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { asignarProyecto, eliminarColaborador, getAllColaboradores, getColaborador, getColaboradoresDisponibles, logearColaborador, modificarColaborador, modificarColaboradorAdmin, registrarColaborador } from "../controllers/colaborador.controller";
+import { asignarProyecto, getAllColaboradores, getColaborador, getColaboradoresDisponibles, logearColaborador, modificarColaborador, modificarColaboradorAdmin, registrarColaborador } from "../controllers/colaborador.controller";
 
 const router = Router();
 
@@ -10,7 +10,6 @@ router.post("/", registrarColaborador)
 router.post("/login", logearColaborador)
 router.get("/:cedula", getColaborador)
 router.put("/:cedula", modificarColaborador)
-router.delete("/:cedula", eliminarColaborador)
 router.post("/:cedula/proyecto", asignarProyecto)
 router.put("/:cedula/admin", modificarColaboradorAdmin)
 

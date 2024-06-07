@@ -38,6 +38,10 @@ const colaboradorSchema = new mongoose.Schema({
     admin: {
         type: Boolean,
         default: false,
+    },
+    estado: {
+        type: Boolean,
+        default: true,
     }
 });
 
