@@ -4,4 +4,5 @@ export interface Mensaje {
     mensaje: string,
     tiempo: Date,
     colaborador: ObjectId,
+    respuestas: Mensaje[]
 }

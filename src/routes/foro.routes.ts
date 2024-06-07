@@ -5,7 +5,7 @@ import { getForoProyecto, getForoGeneral, crearForoProyecto } from "../controlle
 
 const router = Router();
 
-router.get("/", getForoGeneral);
+router.get("/general", getForoGeneral);
 
 router.get("/:proyecto", getForoProyecto);
 
