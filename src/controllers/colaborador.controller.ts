@@ -223,6 +223,15 @@ export const getColaborador: RequestHandler = async (req:Request, res: Response)
     return res.status(200).json(colaboradorFinal);
 }
 
+export const getColaboradorByCorreo: RequestHandler = async (req:Request, res: Response) => {
+    const correo = req.params.correo;
+    const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto");
+    if (!colaborador) { return res.status(404).json({ message: "Error: Collaborator not found" }) }
+    await colaborador.populate("proyecto.responsable")
+    const colaboradorFinal = formatearColaborador(colaborador);
+    return res.status(200).json(colaboradorFinal);
+}
+
 export const eliminarColaborador: RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula;
     const colaborador = await ColaboradorModel.findOne({ cedula });
