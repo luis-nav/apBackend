@@ -54,7 +54,6 @@ const cambioSchema = new mongoose.Schema<Cambio>({
     aprobadoPor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Colaborador",
-        required: true,
     },
 });
 
