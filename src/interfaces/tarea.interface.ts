@@ -1,6 +1,7 @@
 import { ObjectId } from "mongoose";
 
 export interface Tarea {
+    _id: any;
     nombre: string,
     descripcion: string,
     storyPoints: number,
