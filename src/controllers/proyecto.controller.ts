@@ -56,7 +56,8 @@ export const getProyectos: RequestHandler = async (req: Request, res: Response) 
             tareas: proyecto.tareas,
             cambios: proyecto.cambios,
             recursos: proyecto.recursos,
-            fechaFin: proyecto.fechaFinal
+            fechaFin: proyecto.fechaFinal,
+            tieneForo: !!proyecto.foro
         }))
     return res.status(200).json(proyectosFormatted);
 }
@@ -83,6 +84,7 @@ export const getProyecto: RequestHandler = async (req: Request, res: Response) =
         cambios: proyecto.cambios,
         recursos: proyecto.recursos,
         fechaFin: proyecto.fechaFinal,
+        tieneForo: !!proyecto.foro,
         colaboradores
     }
     return res.status(200).json(proyectoFormatted);

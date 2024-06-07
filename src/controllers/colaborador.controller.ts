@@ -19,7 +19,8 @@ const formatearColaborador = (colaborador:any) => {
             tareas: colaborador.proyecto.tareas,
             cambios: colaborador.proyecto.cambios,
             recursos: colaborador.proyecto.recursos,
-            fechaFin: colaborador.proyecto.fechaFinal
+            fechaFin: colaborador.proyecto.fechaFinal,
+            tieneForo: !!colaborador.proyecto.foro
         }
         const colab = { 
             cedula: colaborador.cedula, 
