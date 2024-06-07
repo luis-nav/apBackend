@@ -24,11 +24,12 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
             medioReunion, 
             descripcion
         });
-        await reunion.save();
-        // proyecto.reuniones.push(reunion);
+        const savedReunion = await reunion.save();
+        // @ts-ignore
+        proyecto.reuniones.push(savedReunion);
         await proyecto?.save();
         await enviarAvisoReunion(reunion.temaReunion, fecha, proyecto);
-        return res.status(201).json({ message: "Meeting created!"});  
+        return res.status(201).json({ message: "Meeting created!", _id: savedReunion._id});
     } catch (error) {
         return res.status(400).json({ message: `Error: Could not create meeting: ${error}` });;
     }
@@ -36,17 +37,21 @@ export const crearReunion: RequestHandler = async (req: Request, res: Response) 
 }
 
 export const eliminarReunion: RequestHandler = async (req:Request, res:Response) => {
-    const temaReunion = req.params.temaReunion;
-    const nombre = req.params.nombre;
-    const proyecto = await ProyectoModel.findOne({ nombre: nombre });
+    const idReunion = req.params.idReunion;
+    const nombreProyecto = req.params.nombreProyecto;
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     if (proyecto === null) {
         return res.status(404).json({ message: "Error: Project not found" });
     }
     else {
-        const reunion = proyecto.reuniones.findIndex(temaReunion => temaReunion === temaReunion);
+        // @ts-ignore
+        const reunion = proyecto.reuniones.findIndex(reunion => reunion._id.toString() === idReunion);
+        if (reunion === -1) {
+            return res.status(404).json({ message: "Error: Meeting not found" });
+        }
         try {
             proyecto.reuniones.splice(reunion, 1);
-            await ReunionModel.findOneAndDelete({ reunion });
+            await ReunionModel.findByIdAndDelete(idReunion);
             await proyecto.save();
             return res.status(200).json({ message: "The meeting has been deleted successfully" });
         } catch (error) {
