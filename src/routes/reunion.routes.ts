@@ -3,7 +3,7 @@ import { getReuniones, crearReunion, eliminarReunion, addColab } from "../contro
 
 const router = Router();
 
-router.get("/:nombre", getReuniones);
+router.get("/:nombreProyecto", getReuniones);
 
 router.post("/:nombreProyecto", crearReunion);
 

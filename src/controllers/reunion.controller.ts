@@ -7,7 +7,7 @@ import { enviarAvisoReunion } from "../utils/mail.functions";
 
 export const getReuniones: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.nombreProyecto;
-    const proyecto = await ProyectoModel.findOne({ nombreProyecto }).populate("reuniones")
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto }).populate("reuniones")
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
     return res.status(200).json(proyecto.reuniones);
 }
