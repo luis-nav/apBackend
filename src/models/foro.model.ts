@@ -14,7 +14,20 @@ const mensajeSchema = new mongoose.Schema<Mensaje>({
     },
     colaborador: {
         type: Schema.Types.ObjectId,
-    }
+    },
+    respuestas: [{
+        mensaje: {
+            type: String,
+            required: true,
+        },
+        tiempo: {
+            type: Date,
+            default: Date.now
+        },
+        colaborador: {
+            type: Schema.Types.ObjectId,
+        },
+    }]
 });
 
 // Indice Ascendiente

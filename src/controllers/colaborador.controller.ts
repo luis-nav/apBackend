@@ -19,7 +19,8 @@ const formatearColaborador = (colaborador:any) => {
             tareas: colaborador.proyecto.tareas,
             cambios: colaborador.proyecto.cambios,
             recursos: colaborador.proyecto.recursos,
-            fechaFin: colaborador.proyecto.fechaFinal
+            fechaFin: colaborador.proyecto.fechaFinal,
+            tieneForo: !!colaborador.proyecto.foro
         }
         const colab = { 
             cedula: colaborador.cedula, 
@@ -220,6 +221,15 @@ export const getAllColaboradores: RequestHandler = async (req:Request, res: Resp
 export const getColaborador: RequestHandler = async (req:Request, res: Response) => {
     const cedula = req.params.cedula;
     const colaborador = await ColaboradorModel.findOne({ cedula }).populate("proyecto");
+    if (!colaborador) { return res.status(404).json({ message: "Error: Collaborator not found" }) }
+    await colaborador.populate("proyecto.responsable")
+    const colaboradorFinal = formatearColaborador(colaborador);
+    return res.status(200).json(colaboradorFinal);
+}
+
+export const getColaboradorByCorreo: RequestHandler = async (req:Request, res: Response) => {
+    const correo = req.params.correo;
+    const colaborador = await ColaboradorModel.findOne({ correo }).populate("proyecto");
     if (!colaborador) { return res.status(404).json({ message: "Error: Collaborator not found" }) }
     await colaborador.populate("proyecto.responsable")
     const colaboradorFinal = formatearColaborador(colaborador);
