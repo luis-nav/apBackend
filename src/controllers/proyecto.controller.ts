@@ -5,6 +5,7 @@ import { ProyectoModel } from "../models/proyecto.model";
 import { EstadoTareaModel } from '../models/estadoTarea.model';
 import { ColaboradorModel } from "../models/colaborador.model";
 import { enviarAsignacionProyecto, enviarCambiosColaboradores } from "../utils/mail.functions";
+import { ForoModel } from "../models/foro.model";
 
 
 const definirCambios = (cambiosProyecto: any, responsable: any) => {
@@ -165,7 +166,7 @@ export const eliminarProyecto: RequestHandler = async (req:Request, res:Response
     const nombre  = req.params.nombre;
     const proyecto = await ProyectoModel.findOne({ nombre });
     try {
-
+        if (proyecto && proyecto.foro) { await ForoModel.findByIdAndDelete(proyecto.foro); }
         await ColaboradorModel.updateMany({ proyecto }, { proyecto: null })
         await ProyectoModel.findOneAndDelete({ nombre });
         return res.status(200).json({ message: "The project has been deleted successfully" });
