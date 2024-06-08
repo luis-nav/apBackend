@@ -5,13 +5,13 @@ import { ForoModel } from "../models/foro.model";
 
 export const getForoProyecto: RequestHandler = async (req: Request, res: Response) => {
     const nombreProyecto  = req.params.proyecto;
-    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto })
-        .populate("foro")
-        .populate({ path: "foro.mensajes.colaborador", model: "Colaborador"})
-        .populate({ path: "foro.mensajes.respuestas.colaborador", model: "Colaborador"});
-    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
+    const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
+    if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) };
     if (!proyecto.foro) { return res.status(404).json({ message: "Error: The selected project does not have a forum" }) }
-    return res.status(200).json(proyecto.foro);
+    const foro = await ForoModel.findOne({ _id: proyecto.foro })
+        .populate({ path: "mensajes.colaborador", model: "Colaborador"})
+        .populate({ path: "mensajes.respuestas.colaborador", model: "Colaborador"});
+    return res.status(200).json(foro);
 }
 
 export const getForoGeneral: RequestHandler = async (req: Request, res: Response) => {
