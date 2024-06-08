@@ -58,7 +58,8 @@ export const postearRespuesta: RequestHandler = async (req:Request, res: Respons
 }
 
 export const postearRespuestaProyecto: RequestHandler = async (req: Request, res: Response) => {
-    const { nombreProyecto, _id } = req.params;
+    const _id = req.params._id;
+    const nombreProyecto = req.params.proyecto;
     const { nombreColaborador, mensaje } = req.body;
     const proyecto = await ProyectoModel.findOne({ nombre: nombreProyecto });
     if (!proyecto) { return res.status(404).json({ message: "Error: Project not found" }) }
